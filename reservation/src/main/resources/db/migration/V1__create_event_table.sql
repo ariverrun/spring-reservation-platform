@@ -9,3 +9,6 @@ CREATE TABLE IF NOT EXISTS event (
     ticket_price DECIMAL(10, 2) NOT NULL,
     total_seats INT NOT NULL
 );
+
+CREATE INDEX idx_event_user_id ON event(user_id);
+CREATE INDEX idx_event_start_time ON event(start_time);
