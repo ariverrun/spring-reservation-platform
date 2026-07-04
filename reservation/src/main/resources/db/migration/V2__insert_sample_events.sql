@@ -1,5 +1,5 @@
 -- V2__insert_sample_events.sql
-INSERT INTO event (id, user_id, name, description, start_time, duration_seconds, ticket_price, total_seats) VALUES
+INSERT INTO events (id, user_id, name, description, start_time, duration_seconds, ticket_price, total_seats) VALUES
 (
     X'1234567890abcdef1234567890abcdef',
     X'abcdef1234567890abcdef1234567890',

@@ -1,5 +1,5 @@
 -- V4__insert_sample_reservations.sql
-INSERT INTO reservation (id, user_id, event_id, seats) VALUES
+INSERT INTO reservations (id, user_id, event_id, seats) VALUES
 (
     X'41000000000000000000000000000001',
     X'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',

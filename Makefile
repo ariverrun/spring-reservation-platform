@@ -8,3 +8,9 @@ up:
 
 down:
 	docker compose --env-file $(ENV_FILE) down
+
+logs-reservation:
+	docker compose --env-file $(ENV_FILE) logs -f reservation-app
+
+logs-auth:
+	docker compose --env-file $(ENV_FILE) logs -f auth-app

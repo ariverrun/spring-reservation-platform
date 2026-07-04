@@ -1,5 +1,5 @@
 -- V1__create_event_table.sql
-CREATE TABLE IF NOT EXISTS event (
+CREATE TABLE IF NOT EXISTS events (
     id BINARY(16) PRIMARY KEY,
     user_id BINARY(16) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -10,5 +10,5 @@ CREATE TABLE IF NOT EXISTS event (
     total_seats INT NOT NULL
 );
 
-CREATE INDEX idx_event_user_id ON event(user_id);
-CREATE INDEX idx_event_start_time ON event(start_time);
+CREATE INDEX idx_event_user_id ON events(user_id);
+CREATE INDEX idx_event_start_time ON events(start_time);
