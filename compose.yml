@@ -1,9 +1,9 @@
 services:
-  reservation-service:
+  reservation-app:
     build:
       context: ./reservation
       dockerfile: Dockerfile
-    container_name: reservation-service
+    container_name: reservation-app
     ports:
       - "${RESERVATION_APP_PORT}:8080"
     environment:
