@@ -32,3 +32,5 @@ HELP.md
 
 src/main/resources/static/
 .env.local
+
+ssh-keys

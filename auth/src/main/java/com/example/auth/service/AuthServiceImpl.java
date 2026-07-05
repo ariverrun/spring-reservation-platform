@@ -25,7 +25,6 @@ public class AuthServiceImpl implements AuthService {
     public AuthResultDto login(LoginRequestDto request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> {
-                    System.out.println("User NOT found!");
                     return new RuntimeException("Invalid credentials");
                 });
 
