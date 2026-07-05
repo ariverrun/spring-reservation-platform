@@ -62,7 +62,8 @@ public class EventServiceImpl implements EventService {
             event.getStartTime(),
             event.getDurationSeconds(),
             event.getTicketPrice(),
-            event.getTotalSeats()
+            event.getTotalSeats(),
+            event.getIsCanceled()
         );
     }
 }

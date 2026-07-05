@@ -11,6 +11,7 @@ public record EventDto(
     Instant startTime,
     Long durationSeconds,
     Double ticketPrice,
-    Integer totalSeats
+    Integer totalSeats,
+    Boolean isCanceled
 ) {
 }

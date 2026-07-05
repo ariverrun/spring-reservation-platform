@@ -42,4 +42,8 @@ public class Event {
 
     @Column(name = "total_seats", nullable = false)
     private Integer totalSeats;
+
+    @Column(name = "is_canceled", nullable = false)
+    @Builder.Default
+    private Boolean isCanceled = false;    
 }
