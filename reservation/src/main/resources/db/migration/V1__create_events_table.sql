@@ -1,4 +1,4 @@
--- V1__create_event_table.sql
+-- V1__create_events_table.sql
 CREATE TABLE IF NOT EXISTS events (
     id BINARY(16) PRIMARY KEY,
     user_id BINARY(16) NOT NULL,

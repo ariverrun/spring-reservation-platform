@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -35,10 +34,6 @@ public class RefreshToken {
 
     @Column(name = "revoked", nullable = false)
     private boolean revoked;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
 
     public boolean isExpired() {
         return Instant.now().isAfter(expiresAt);

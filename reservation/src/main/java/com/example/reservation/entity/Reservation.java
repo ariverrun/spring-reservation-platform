@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "reservation")
+@Table(name = "reservations")
 @Data
 @Builder
 @NoArgsConstructor

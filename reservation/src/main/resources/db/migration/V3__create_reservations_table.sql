@@ -1,4 +1,4 @@
--- V3__create_reservation_table.sql
+-- V3__create_reservations_table.sql
 CREATE TABLE IF NOT EXISTS reservations (
     id BINARY(16) PRIMARY KEY,
     user_id BINARY(16) NOT NULL,

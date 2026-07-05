@@ -4,7 +4,7 @@ INSERT INTO roles (name) VALUES ('ROLE_USER'), ('ROLE_ADMIN');
 -- First admin: admin@example.com / admin123
 INSERT INTO users (id, email, first_name, last_name, password) VALUES
 (
-    CAST(CAST('01912345-6789-7abc-def0-123456789abc' AS UUID) AS BINARY(16)),
+    X'0191234567897abcdef0123456789abc',
     'admin@example.com',
     'Admin',
     'Adminov',
@@ -14,7 +14,7 @@ INSERT INTO users (id, email, first_name, last_name, password) VALUES
 -- Second admin: admin2@example.com / admin123
 INSERT INTO users (id, email, first_name, last_name, password) VALUES
 (
-    CAST(CAST('019f31c2-7243-7f0d-9c28-d9f36dcaf6b3' AS UUID) AS BINARY(16)),
+    X'019f31c272437f0d9c28d9f36dcaf6b3',
     'admin2@example.com',
     'Admin2',
     'Adminov2',
@@ -23,18 +23,18 @@ INSERT INTO users (id, email, first_name, last_name, password) VALUES
 
 INSERT INTO user_roles (user_id, role_id) VALUES
 (
-    CAST(CAST('01912345-6789-7abc-def0-123456789abc' AS UUID) AS BINARY(16)),
+    X'0191234567897abcdef0123456789abc',
     (SELECT id FROM roles WHERE name = 'ROLE_ADMIN')
 ),
 (
-    CAST(CAST('01912345-6789-7abc-def0-123456789abc' AS UUID) AS BINARY(16)),
+    X'0191234567897abcdef0123456789abc',
     (SELECT id FROM roles WHERE name = 'ROLE_USER')
 ),
 (
-    CAST(CAST('019f31c2-7243-7f0d-9c28-d9f36dcaf6b3' AS UUID) AS BINARY(16)),
+    X'019f31c272437f0d9c28d9f36dcaf6b3',
     (SELECT id FROM roles WHERE name = 'ROLE_ADMIN')
 ),
 (
-    CAST(CAST('019f31c2-7243-7f0d-9c28-d9f36dcaf6b3' AS UUID) AS BINARY(16)),
+    X'019f31c272437f0d9c28d9f36dcaf6b3',
     (SELECT id FROM roles WHERE name = 'ROLE_USER')
 );

@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
     user_id BINARY(16) NOT NULL,
     expires_at TIMESTAMP NOT NULL,
     revoked BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
