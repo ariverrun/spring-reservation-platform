@@ -18,6 +18,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +27,7 @@ public class JwtServiceImpl implements JwtService {
 
     private final JwtConfig jwtConfig;
 
+    @Override
     public String generateAccessToken(User user) {
         try {
             Map<String, Object> claims = new HashMap<>();
@@ -46,19 +48,12 @@ public class JwtServiceImpl implements JwtService {
         }
     }
 
+    @Override
     public String generateRefreshToken(User user) {
-        try {
-            return Jwts.builder()
-                    .setSubject(user.getId().toString())
-                    .setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getRefreshTokenExpiration()))
-                    .signWith(getPrivateKey())
-                    .compact();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate refresh token", e);
-        }
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
+    @Override
     public Claims validateToken(String token) {
         try {
             return Jwts.parserBuilder()
@@ -71,6 +66,7 @@ public class JwtServiceImpl implements JwtService {
         }
     }
 
+    @Override
     public String extractUserId(String token) {
         return validateToken(token).getSubject();
     }
