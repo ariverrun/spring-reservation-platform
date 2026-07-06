@@ -2,6 +2,7 @@ package com.example.reservation.service;
 
 import com.example.reservation.dto.CreateEventRequestDto;
 import com.example.reservation.dto.EventDto;
+import com.example.reservation.dto.UpdateEventRequestDto;
 import com.example.reservation.dto.UserInfo;
 import com.example.reservation.entity.Event;
 import com.example.reservation.repository.EventRepository;
@@ -51,6 +52,24 @@ public class EventServiceImpl implements EventService {
 
         Event savedEvent = eventRepository.save(event);
         return mapToDto(savedEvent);
+    }
+
+    @Override
+    @Transactional
+    public EventDto updateEvent(UUID id, UpdateEventRequestDto request) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
+
+        event.setName(request.name());
+        event.setDescription(request.description());
+        event.setStartTime(request.startTime());
+        event.setDurationSeconds(request.durationSeconds());
+        event.setTicketPrice(request.ticketPrice());
+        event.setTotalSeats(request.totalSeats());
+        event.setIsCanceled(request.isCanceled());
+
+        Event updatedEvent = eventRepository.save(event);
+        return mapToDto(updatedEvent);
     }
 
     private EventDto mapToDto(Event event) {
