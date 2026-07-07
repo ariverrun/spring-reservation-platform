@@ -3,6 +3,7 @@ package com.example.reservation.service;
 import com.example.reservation.dto.CreateReservationRequestDto;
 import com.example.reservation.dto.ReservationDto;
 import com.example.reservation.dto.ReservationEventDto;
+import com.example.reservation.dto.ReservationWithEventDto;
 import com.example.reservation.dto.UserInfo;
 import com.example.reservation.entity.Event;
 import com.example.reservation.entity.Reservation;
@@ -54,18 +55,40 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReservationDto> getUserReservations(UserInfo user) {
+    public List<ReservationWithEventDto> getUserReservations(UserInfo user) {
         List<Reservation> reservations = reservationRepository.findAllByUserIdWithEvent(user.getId());
         
         return reservations.stream()
-            .map(this::mapToDto)
+            .map(this::mapToDtoWithEvent)
             .collect(Collectors.toList())
         ;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationDto> getEventReservations(UUID eventId) {
+        Event event = eventRepository.findById(eventId)
+            .orElseThrow(() -> {
+                return new RuntimeException("Event not found with id: " + eventId);
+            });
+        
+        return event.getReservations().stream()
+            .map(this::mapToDto)
+            .collect(Collectors.toList());
+    }
+
     private ReservationDto mapToDto(Reservation reservation) {
-        Event event = reservation.getEvent();
         return new ReservationDto(
+            reservation.getId(),
+            reservation.getUserId(),
+            reservation.getEvent().getId(),
+            reservation.getSeats()
+        );
+    }
+
+    private ReservationWithEventDto mapToDtoWithEvent(Reservation reservation) {
+        Event event = reservation.getEvent();
+        return new ReservationWithEventDto(
             reservation.getId(),
             reservation.getUserId(),
             new ReservationEventDto(

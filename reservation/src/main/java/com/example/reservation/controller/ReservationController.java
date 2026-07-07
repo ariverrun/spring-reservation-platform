@@ -3,6 +3,7 @@ package com.example.reservation.controller;
 import com.example.reservation.dto.CreateReservationRequestDto;
 import com.example.reservation.dto.ReservationCreatedDto;
 import com.example.reservation.dto.ReservationDto;
+import com.example.reservation.dto.ReservationWithEventDto;
 import com.example.reservation.dto.UserInfo;
 import com.example.reservation.service.ReservationService;
 import jakarta.validation.Valid;
@@ -36,7 +37,7 @@ public class ReservationController {
     }
 
     @GetMapping("/api/v1/reserve")
-    public List<ReservationDto> getUserReserves(@AuthenticationPrincipal UserInfo user) {
+    public List<ReservationWithEventDto> getUserReserves(@AuthenticationPrincipal UserInfo user) {
         return reservationService.getUserReservations(user);
     }
 }

@@ -3,9 +3,11 @@ package com.example.reservation.controller;
 import com.example.reservation.dto.CreateEventRequestDto;
 import com.example.reservation.dto.EventCreatedDto;
 import com.example.reservation.dto.EventDto;
+import com.example.reservation.dto.ReservationDto;
 import com.example.reservation.dto.UpdateEventRequestDto;
 import com.example.reservation.dto.UserInfo;
 import com.example.reservation.service.EventService;
+import com.example.reservation.service.ReservationService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import java.util.UUID;
 public class EventController {
 
     private final EventService eventService;
+    private final ReservationService reservationService;
 
     @GetMapping("/api/v1/event")
     public List<EventDto> getAllEvents() {
@@ -53,5 +56,10 @@ public class EventController {
         @RequestBody @Valid UpdateEventRequestDto request
     ) {
         return eventService.updateEvent(id, request);
-    }    
+    }
+
+    @GetMapping("/api/v1/event/{id}/reserve")
+    public List<ReservationDto> getEventReserves(@PathVariable UUID id) {
+        return reservationService.getEventReservations(id);
+    }
 }

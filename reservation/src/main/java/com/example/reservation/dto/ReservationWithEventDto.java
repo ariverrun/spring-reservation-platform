@@ -2,10 +2,10 @@ package com.example.reservation.dto;
 
 import java.util.UUID;
 
-public record ReservationDto(
+public record ReservationWithEventDto(
     UUID id,
     UUID userId,
-    UUID eventId,
+    ReservationEventDto event,
     Integer seats
 ) {
 }
