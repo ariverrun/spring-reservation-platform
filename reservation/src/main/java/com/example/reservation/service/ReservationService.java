@@ -12,4 +12,5 @@ public interface ReservationService {
     ReservationDto createReservation(CreateReservationRequestDto request, UserInfo user);
     List<ReservationWithEventDto> getUserReservations(UserInfo user);
     List<ReservationDto> getEventReservations(UUID eventId);
+    ReservationWithEventDto getUserReservationById(UUID id, UserInfo user);
 }

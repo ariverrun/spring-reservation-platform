@@ -77,6 +77,21 @@ public class ReservationServiceImpl implements ReservationService {
             .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ReservationWithEventDto getUserReservationById(UUID id, UserInfo user) {
+        Reservation reservation = reservationRepository.findById(id)
+            .orElseThrow(() -> {
+                return new RuntimeException("Reservation not found with id: " + id);
+            });
+        
+        if (!reservation.getUserId().equals(user.getId())) {
+            throw new RuntimeException("Access denied");
+        }
+        
+        return mapToDtoWithEvent(reservation);        
+    }
+
     private ReservationDto mapToDto(Reservation reservation) {
         return new ReservationDto(
             reservation.getId(),

@@ -32,7 +32,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/v1/event/{id}").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/event/{id}").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/reserve").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/v1/reserve").hasRole("USER")                
+                .requestMatchers(HttpMethod.GET, "/api/v1/reserve").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/api/v1/reserve/{id}").hasRole("USER")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
