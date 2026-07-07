@@ -14,4 +14,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
 
     @Query("SELECT r FROM Reservation r JOIN FETCH r.event WHERE r.userId = :userId ORDER BY r.id DESC")
     List<Reservation> findAllByUserIdWithEvent(@Param("userId") UUID userId);
+
+    @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END " +
+           "FROM Reservation r WHERE r.userId = :userId AND r.event.id = :eventId AND r.isCanceled = false")
+    boolean existsByUserIdAndEventIdAndIsNotCanceled(
+        @Param("userId") UUID userId, 
+        @Param("eventId") UUID eventId
+    );    
 }

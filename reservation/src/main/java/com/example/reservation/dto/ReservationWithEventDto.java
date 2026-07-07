@@ -6,6 +6,7 @@ public record ReservationWithEventDto(
     UUID id,
     UUID userId,
     ReservationEventDto event,
-    Integer seats
+    Integer seats,
+    Boolean isCanceled
 ) {
 }

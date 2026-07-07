@@ -4,6 +4,7 @@ import com.example.reservation.dto.CreateReservationRequestDto;
 import com.example.reservation.dto.ReservationDto;
 import com.example.reservation.dto.ReservationEventDto;
 import com.example.reservation.dto.ReservationWithEventDto;
+import com.example.reservation.dto.UpdateReservationRequestDto;
 import com.example.reservation.dto.UserInfo;
 import com.example.reservation.entity.Event;
 import com.example.reservation.entity.Reservation;
@@ -32,6 +33,14 @@ public class ReservationServiceImpl implements ReservationService {
 
         if (Boolean.TRUE.equals(event.getIsCanceled())) {
             throw new RuntimeException("Event is canceled");
+        }
+
+        boolean hasActiveReservation = reservationRepository.existsByUserIdAndEventIdAndIsNotCanceled(
+            user.getId(), event.getId()
+        );
+    
+        if (hasActiveReservation) {
+            throw new RuntimeException("You already have an active reservation for this event");
         }
 
         long bookedSeats = reservationRepository.countByEventId(event.getId());
@@ -92,12 +101,49 @@ public class ReservationServiceImpl implements ReservationService {
         return mapToDtoWithEvent(reservation);        
     }
 
+    @Override
+    @Transactional
+    public ReservationDto updateReservation(UUID id, UpdateReservationRequestDto request, UserInfo user) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reservation not found with id: " + id));
+        
+        if (!reservation.getUserId().equals(user.getId())) {
+            throw new RuntimeException("Access denied");
+        }
+        
+        if (Boolean.TRUE.equals(reservation.getIsCanceled())) {
+            throw new RuntimeException("Cannot update canceled reservation");
+        }
+        
+        Event event = eventRepository.findByIdWithPessimisticLock(reservation.getEvent().getId())
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+        
+        if (Boolean.TRUE.equals(event.getIsCanceled())) {
+            throw new RuntimeException("Cannot update reservation for canceled event");
+        }
+        
+        long bookedSeats = reservationRepository.countByEventId(event.getId());
+        long availableSeats = event.getTotalSeats() - bookedSeats + reservation.getSeats();
+        
+        if (availableSeats < request.seats()) {
+            throw new RuntimeException("Not enough available seats. Available: " + availableSeats);
+        }
+        
+        reservation.setSeats(request.seats());
+        reservation.setIsCanceled(request.isCanceled());
+        
+        Reservation updated = reservationRepository.save(reservation);
+        
+        return mapToDto(updated);
+    }
+
     private ReservationDto mapToDto(Reservation reservation) {
         return new ReservationDto(
             reservation.getId(),
             reservation.getUserId(),
             reservation.getEvent().getId(),
-            reservation.getSeats()
+            reservation.getSeats(),
+            reservation.getIsCanceled()
         );
     }
 
@@ -115,7 +161,8 @@ public class ReservationServiceImpl implements ReservationService {
                 event.getTicketPrice(),
                 event.getIsCanceled()
             ),
-            reservation.getSeats()
+            reservation.getSeats(),
+            reservation.getIsCanceled()
         );
     }
 }

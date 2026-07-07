@@ -6,6 +6,7 @@ public record ReservationDto(
     UUID id,
     UUID userId,
     UUID eventId,
-    Integer seats
+    Integer seats,
+    Boolean isCanceled
 ) {
 }

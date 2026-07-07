@@ -30,4 +30,8 @@ public class Reservation {
 
     @Column(name = "seats", nullable = false)
     private Integer seats;
+
+    @Column(name = "is_canceled", nullable = false)
+    @Builder.Default
+    private Boolean isCanceled = false;    
 }

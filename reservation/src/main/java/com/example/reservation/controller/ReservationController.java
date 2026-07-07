@@ -4,6 +4,7 @@ import com.example.reservation.dto.CreateReservationRequestDto;
 import com.example.reservation.dto.ReservationCreatedDto;
 import com.example.reservation.dto.ReservationDto;
 import com.example.reservation.dto.ReservationWithEventDto;
+import com.example.reservation.dto.UpdateReservationRequestDto;
 import com.example.reservation.dto.UserInfo;
 import com.example.reservation.service.ReservationService;
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,4 +52,13 @@ public class ReservationController {
     ) {
         return reservationService.getUserReservationById(reservationId, user);
     }
+
+    @PutMapping("/api/v1/reserve/{id}")
+    public ReservationDto updateReservation(
+        @PathVariable UUID id,
+        @RequestBody @Valid UpdateReservationRequestDto request,
+        @AuthenticationPrincipal UserInfo user
+    ) {
+        return reservationService.updateReservation(id, request, user);
+    }    
 }

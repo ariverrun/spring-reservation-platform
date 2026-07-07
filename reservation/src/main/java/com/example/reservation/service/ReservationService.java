@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.example.reservation.dto.CreateReservationRequestDto;
 import com.example.reservation.dto.ReservationDto;
 import com.example.reservation.dto.ReservationWithEventDto;
+import com.example.reservation.dto.UpdateReservationRequestDto;
 import com.example.reservation.dto.UserInfo;
 
 public interface ReservationService {
@@ -13,4 +14,5 @@ public interface ReservationService {
     List<ReservationWithEventDto> getUserReservations(UserInfo user);
     List<ReservationDto> getEventReservations(UUID eventId);
     ReservationWithEventDto getUserReservationById(UUID id, UserInfo user);
+    ReservationDto updateReservation(UUID id, UpdateReservationRequestDto request, UserInfo user);    
 }
