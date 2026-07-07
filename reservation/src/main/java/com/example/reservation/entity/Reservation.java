@@ -24,8 +24,9 @@ public class Reservation {
     @Column(name = "user_id", columnDefinition = "BINARY(16)", nullable = false)
     private UUID userId;
 
-    @Column(name = "event_id", columnDefinition = "BINARY(16)", nullable = false)
-    private UUID eventId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id", columnDefinition = "BINARY(16)", nullable = false)
+    private Event event;
 
     @Column(name = "seats", nullable = false)
     private Integer seats;

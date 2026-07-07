@@ -2,6 +2,7 @@ package com.example.reservation.service;
 
 import com.example.reservation.dto.CreateReservationRequestDto;
 import com.example.reservation.dto.ReservationDto;
+import com.example.reservation.dto.ReservationEventDto;
 import com.example.reservation.dto.UserInfo;
 import com.example.reservation.entity.Event;
 import com.example.reservation.entity.Reservation;
@@ -11,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,17 +43,41 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = Reservation.builder()
                 .id(UUID.randomUUID())
                 .userId(user.getId())
-                .eventId(event.getId())
+                .event(event)
                 .seats(request.seats())
                 .build();
 
         Reservation saved = reservationRepository.save(reservation);
 
+        return mapToDto(saved);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationDto> getUserReservations(UserInfo user) {
+        List<Reservation> reservations = reservationRepository.findAllByUserIdWithEvent(user.getId());
+        
+        return reservations.stream()
+            .map(this::mapToDto)
+            .collect(Collectors.toList())
+        ;
+    }
+
+    private ReservationDto mapToDto(Reservation reservation) {
+        Event event = reservation.getEvent();
         return new ReservationDto(
-            saved.getId(),
-            saved.getUserId(),
-            saved.getEventId(),
-            saved.getSeats()
+            reservation.getId(),
+            reservation.getUserId(),
+            new ReservationEventDto(
+                event.getId(),
+                event.getName(),
+                event.getDescription(),
+                event.getStartTime(),
+                event.getDurationSeconds(),
+                event.getTicketPrice(),
+                event.getIsCanceled()
+            ),
+            reservation.getSeats()
         );
     }
 }

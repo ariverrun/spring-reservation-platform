@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -45,5 +47,9 @@ public class Event {
 
     @Column(name = "is_canceled", nullable = false)
     @Builder.Default
-    private Boolean isCanceled = false;    
+    private Boolean isCanceled = false;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Reservation> reservations = new ArrayList<>();    
 }

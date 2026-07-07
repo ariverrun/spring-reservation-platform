@@ -5,7 +5,7 @@ import java.util.UUID;
 public record ReservationDto(
     UUID id,
     UUID userId,
-    UUID eventId,
+    ReservationEventDto event,
     Integer seats
 ) {
 }
