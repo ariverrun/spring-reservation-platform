@@ -26,7 +26,8 @@ public class ErrorHandler {
     @ExceptionHandler({
         NoHandlerFoundException.class, 
         NoHandlerFoundException.class, 
-        HttpRequestMethodNotSupportedException.class
+        HttpRequestMethodNotSupportedException.class,
+        EntityNotFoundException.class
     })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public RestApiErrorDto handleNotFound(Exception ex, HttpServletRequest request) {
@@ -53,6 +54,26 @@ public class ErrorHandler {
         HttpServletRequest request
     ) {
         return new RestApiErrorDto("MISSING_QUERY_PARAM", "Missing query parameter: " + ex.getParameterName());
+    }
+
+    @ExceptionHandler(AccessViolationException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public RestApiErrorDto handleAccessViolation(AccessViolationException ex, HttpServletRequest request) {
+        return new RestApiErrorDto("ACCESS_DENIED", "You can not have access for this resource");
+    }
+
+    @ExceptionHandler({
+        CanceledEventException.class,
+        CanceledReservationException.class,
+        NotEnoughFreeSeatsException.class,
+        RepeatedActiveReservationException.class
+    })
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public RestApiErrorDto handleFailedReservationManaging(Exception ex, HttpServletRequest request) {
+        return new RestApiErrorDto(
+            "RESERVATION_FAILED", 
+            "Failed to create or update reservation: "+ ex.getMessage()
+        );
     }
 
     @ExceptionHandler(Exception.class)

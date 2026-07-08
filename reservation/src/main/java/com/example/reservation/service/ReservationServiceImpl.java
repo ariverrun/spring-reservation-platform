@@ -8,6 +8,12 @@ import com.example.reservation.dto.UpdateReservationRequestDto;
 import com.example.reservation.dto.UserInfo;
 import com.example.reservation.entity.Event;
 import com.example.reservation.entity.Reservation;
+import com.example.reservation.exceptions.AccessViolationException;
+import com.example.reservation.exceptions.CanceledEventException;
+import com.example.reservation.exceptions.CanceledReservationException;
+import com.example.reservation.exceptions.EntityNotFoundException;
+import com.example.reservation.exceptions.NotEnoughFreeSeatsException;
+import com.example.reservation.exceptions.RepeatedActiveReservationException;
 import com.example.reservation.repository.EventRepository;
 import com.example.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +35,10 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional
     public ReservationDto createReservation(CreateReservationRequestDto request, UserInfo user) {
         Event event = eventRepository.findByIdWithPessimisticLock(request.eventId())
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
 
         if (Boolean.TRUE.equals(event.getIsCanceled())) {
-            throw new RuntimeException("Event is canceled");
+            throw new CanceledEventException("Can not create reservation for canceled event");
         }
 
         boolean hasActiveReservation = reservationRepository.existsByUserIdAndEventIdAndIsNotCanceled(
@@ -40,14 +46,14 @@ public class ReservationServiceImpl implements ReservationService {
         );
     
         if (hasActiveReservation) {
-            throw new RuntimeException("You already have an active reservation for this event");
+            throw new RepeatedActiveReservationException("You already have an active reservation for this event");
         }
 
         long bookedSeats = reservationRepository.countSeatsByEventId(event.getId());
         long availableSeats = event.getTotalSeats() - bookedSeats;
 
         if (availableSeats < request.seats()) {
-            throw new RuntimeException("Not enough available seats. Available: " + availableSeats);
+            throw new NotEnoughFreeSeatsException("Not enough available seats. Available: " + availableSeats);
         }
 
         Reservation reservation = Reservation.builder()
@@ -78,7 +84,7 @@ public class ReservationServiceImpl implements ReservationService {
     public List<ReservationDto> getEventReservations(UUID eventId) {
         Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> {
-                return new RuntimeException("Event not found with id: " + eventId);
+                return new EntityNotFoundException("Event not found with id: " + eventId);
             });
         
         return event.getReservations().stream()
@@ -91,11 +97,11 @@ public class ReservationServiceImpl implements ReservationService {
     public ReservationWithEventDto getUserReservationById(UUID id, UserInfo user) {
         Reservation reservation = reservationRepository.findById(id)
             .orElseThrow(() -> {
-                return new RuntimeException("Reservation not found with id: " + id);
+                return new EntityNotFoundException("Reservation not found with id: " + id);
             });
         
         if (!reservation.getUserId().equals(user.getId())) {
-            throw new RuntimeException("Access denied");
+            throw new AccessViolationException("Access denied");
         }
         
         return mapToDtoWithEvent(reservation);        
@@ -105,28 +111,28 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional
     public ReservationDto updateReservation(UUID id, UpdateReservationRequestDto request, UserInfo user) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reservation not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Reservation not found with id: " + id));
         
         if (!reservation.getUserId().equals(user.getId())) {
-            throw new RuntimeException("Access denied");
+            throw new AccessViolationException("Access denied");
         }
         
         if (Boolean.TRUE.equals(reservation.getIsCanceled())) {
-            throw new RuntimeException("Cannot update canceled reservation");
+            throw new CanceledReservationException("Cannot update canceled reservation");
         }
         
         Event event = eventRepository.findByIdWithPessimisticLock(reservation.getEvent().getId())
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
         
         if (Boolean.TRUE.equals(event.getIsCanceled())) {
-            throw new RuntimeException("Cannot update reservation for canceled event");
+            throw new CanceledEventException("Cannot update reservation for canceled event");
         }
         
         long bookedSeats = reservationRepository.countSeatsByEventId(event.getId());
         long availableSeats = event.getTotalSeats() - bookedSeats + reservation.getSeats();
         
         if (availableSeats < request.seats()) {
-            throw new RuntimeException("Not enough available seats. Available: " + availableSeats);
+            throw new NotEnoughFreeSeatsException("Not enough available seats. Available: " + availableSeats);
         }
         
         reservation.setSeats(request.seats());

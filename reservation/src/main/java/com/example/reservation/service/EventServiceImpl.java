@@ -5,6 +5,7 @@ import com.example.reservation.dto.EventDto;
 import com.example.reservation.dto.UpdateEventRequestDto;
 import com.example.reservation.dto.UserInfo;
 import com.example.reservation.entity.Event;
+import com.example.reservation.exceptions.EntityNotFoundException;
 import com.example.reservation.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public EventDto getEventById(UUID id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + id));
         return mapToDto(event);
     }
 
@@ -58,7 +59,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDto updateEvent(UUID id, UpdateEventRequestDto request) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + id));
 
         event.setName(request.name());
         event.setDescription(request.description());
