@@ -5,6 +5,8 @@ import com.example.auth.dto.LoginRequestDto;
 import com.example.auth.dto.RefreshRequestDto;
 import com.example.auth.entity.RefreshToken;
 import com.example.auth.entity.User;
+import com.example.auth.exceptions.InvalidCredentialsException;
+import com.example.auth.exceptions.InvalidRefreshTokenException;
 import com.example.auth.repository.RefreshTokenRepository;
 import com.example.auth.repository.UserRepository;
 
@@ -30,11 +32,11 @@ public class AuthServiceImpl implements AuthService {
     public AuthResultDto login(LoginRequestDto request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> {
-                    return new RuntimeException("Invalid credentials");
+                    return new InvalidCredentialsException("Invalid credentials");
                 });
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
 
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -58,10 +60,10 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthResultDto refresh(RefreshRequestDto request) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.refreshToken())
-                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+                .orElseThrow(() -> new InvalidRefreshTokenException("Invalid refresh token"));
 
         if (!refreshToken.isValid()) {
-            throw new RuntimeException("Refresh token is expired or revoked");
+            throw new InvalidRefreshTokenException("Refresh token is expired or revoked");
         }
 
         User user = refreshToken.getUser();

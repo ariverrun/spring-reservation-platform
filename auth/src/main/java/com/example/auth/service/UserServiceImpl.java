@@ -4,6 +4,7 @@ import com.example.auth.dto.RegisterRequestDto;
 import com.example.auth.dto.UserResponseDto;
 import com.example.auth.entity.Role;
 import com.example.auth.entity.User;
+import com.example.auth.exceptions.EmailAlreadyUsedException;
 import com.example.auth.repository.RoleRepository;
 import com.example.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponseDto register(RegisterRequestDto request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new RuntimeException("Email already registered");
+            throw new EmailAlreadyUsedException("Email already registered");
         }
 
         Role userRole = roleRepository.findByName("ROLE_USER")
