@@ -43,7 +43,7 @@ public class ReservationServiceImpl implements ReservationService {
             throw new RuntimeException("You already have an active reservation for this event");
         }
 
-        long bookedSeats = reservationRepository.countByEventId(event.getId());
+        long bookedSeats = reservationRepository.countSeatsByEventId(event.getId());
         long availableSeats = event.getTotalSeats() - bookedSeats;
 
         if (availableSeats < request.seats()) {
@@ -122,7 +122,7 @@ public class ReservationServiceImpl implements ReservationService {
             throw new RuntimeException("Cannot update reservation for canceled event");
         }
         
-        long bookedSeats = reservationRepository.countByEventId(event.getId());
+        long bookedSeats = reservationRepository.countSeatsByEventId(event.getId());
         long availableSeats = event.getTotalSeats() - bookedSeats + reservation.getSeats();
         
         if (availableSeats < request.seats()) {

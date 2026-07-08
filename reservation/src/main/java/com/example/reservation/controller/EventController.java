@@ -40,7 +40,7 @@ public class EventController {
         return eventService.getEventById(id);
     }
 
-    @PostMapping("api/v1/event")
+    @PostMapping("/api/v1/event")
     public EventCreatedDto createEvent(
         @RequestBody @Valid CreateEventRequestDto request,
         @AuthenticationPrincipal UserInfo user
