@@ -124,7 +124,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>            
+            </plugin> 
         </plugins>
         <finalName>reservation</finalName>
     </build>
