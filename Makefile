@@ -20,5 +20,4 @@ gen-ssh-keys:
 	@openssl genrsa -out ssh-keys/private.pem 2048
 	@openssl rsa -in ssh-keys/private.pem -pubout -out ssh-keys/public.pem
 	@chmod 644 ssh-keys/private.pem
-	@chmod 644 ssh-keys/public.pem	
-
+	@chmod 644 ssh-keys/public.pem
