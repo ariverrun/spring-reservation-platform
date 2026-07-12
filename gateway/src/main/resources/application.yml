@@ -1,0 +1,76 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 5s
+
+      routes:
+        - id: reservation-service
+          uri: http://${RESERVATION_HOST}:${RESERVATION_PORT}
+          predicates:
+            - Path=/api/v1/reserve/**,/api/v1/event/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: reservationService
+                fallbackUri: forward:/fallback/reservation
+
+        - id: auth-service
+          uri: http://${AUTH_HOST}:${AUTH_PORT}
+          predicates:
+            - Path=/api/v1/auth/**,/api/v1/user/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authService
+                fallbackUri: forward:/fallback/auth
+
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 2s
+        recordExceptions:
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - java.util.concurrent.TimeoutException
+          - io.netty.channel.ConnectTimeoutException
+          - reactor.netty.http.client.PrematureCloseException
+
+    instances:
+      reservationService:
+        baseConfig: default
+
+      authService:
+        baseConfig: default
+
+
+logging:
+  level:
+    '[org.springframework.cloud.gateway]': DEBUG
+    '[reactor.netty]': DEBUG
+    '[com.example.gateway]': DEBUG
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+
+
+server:
+  port: 8010
