@@ -7,6 +7,8 @@ import com.example.reservation.dto.ReservationWithEventDto;
 import com.example.reservation.dto.UpdateReservationRequestDto;
 import com.example.reservation.dto.UserInfo;
 import com.example.reservation.service.ReservationService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Reservations", description = "Operations with reservations")
 public class ReservationController {
 
     private final ReservationService reservationService;

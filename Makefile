@@ -36,3 +36,15 @@ stop-reservation:
 
 start-reservation:
 	docker compose --env-file $(ENV_FILE) start reservation-app
+
+dump-reservation-openapi:
+	@mkdir -p docs
+	docker compose --env-file $(ENV_FILE) exec -T reservation-app \
+		wget -qO- http://localhost:8080/v3/api-docs.yaml \
+		> docs/reservation-openapi.yaml
+
+dump-auth-openapi:
+	@mkdir -p docs
+	docker compose --env-file $(ENV_FILE) exec -T auth-app \
+		wget -qO- http://localhost:8080/v3/api-docs.yaml \
+		> docs/auth-openapi.yaml

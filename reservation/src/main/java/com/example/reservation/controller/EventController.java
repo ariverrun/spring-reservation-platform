@@ -9,6 +9,7 @@ import com.example.reservation.dto.UserInfo;
 import com.example.reservation.service.EventService;
 import com.example.reservation.service.ReservationService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +28,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Events", description = "Operations with events")
 public class EventController {
 
     private final EventService eventService;
