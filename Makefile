@@ -18,6 +18,9 @@ logs-auth:
 logs-gateway:
 	docker compose --env-file $(ENV_FILE) logs -f gateway-app
 
+logs-webui:
+	docker compose --env-file $(ENV_FILE) logs -f webui
+
 gen-ssh-keys:
 	@mkdir -p ssh-keys
 	@openssl genrsa -out ssh-keys/private.pem 2048

@@ -65,6 +65,26 @@ services:
     networks:
       - services-network
 
+  webui:
+    build:
+      context: ./webui
+      dockerfile: Dockerfile
+    container_name: webui
+    ports:
+      - "${WEBUI_PORT:-3000}:80"
+    depends_on:
+      gateway-app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - services-network
+
 networks:
   services-network:
     driver: bridge
