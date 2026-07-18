@@ -4,10 +4,12 @@ import AuthService from '../services/auth.service';
 
 function Navbar({ onNavigate, currentPage }) {
   const [isAuthenticated, setIsAuthenticated] = useState(TokenManager.isAuthenticated());
+  const [isAdmin, setIsAdmin] = useState(TokenManager.isAdmin());
 
   useEffect(() => {
     const handleAuthChange = (authState) => {
       setIsAuthenticated(authState);
+      setIsAdmin(TokenManager.isAdmin());
     };
 
     TokenManager.addListener(handleAuthChange);
@@ -44,12 +46,23 @@ function Navbar({ onNavigate, currentPage }) {
             My Reservations
           </button>
         )}
+
+        {isAdmin && (
+          <button
+            className={`nav-link admin ${currentPage === 'admin' ? 'active' : ''}`}
+            onClick={() => onNavigate('admin')}
+          >
+            ⚙️ Admin Panel
+          </button>
+        )}
       </div>
 
       <div className="navbar-actions">
         {isAuthenticated ? (
           <>
-            <span className="user-badge">👤 User</span>
+            <span className="user-badge">
+              {isAdmin ? '👑 Admin' : '👤 User'}
+            </span>
             <button className="btn-logout" onClick={handleLogout}>
               Logout
             </button>
