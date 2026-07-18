@@ -25,6 +25,10 @@ services:
     container_name: auth-app
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy      
     volumes:
       - ./ssh-keys:/app/ssh-keys:ro    
     healthcheck:
@@ -82,6 +86,22 @@ services:
       retries: 3
       start_period: 10s
     restart: unless-stopped
+    networks:
+      - services-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "${RABBITMQ_UI_PORT}:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - services-network
 
