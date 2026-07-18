@@ -21,21 +21,26 @@ class ApiService {
         headers,
       });
 
+      // Если 401 и есть refresh token - пытаемся обновить
       if (response.status === 401) {
-        const refreshed = await this.refreshToken();
-        if (refreshed) {
-          const newToken = TokenManager.getAccessToken();
-          headers['Authorization'] = `Bearer ${newToken}`;
-          const retryResponse = await fetch(url, {
-            ...options,
-            headers,
-          });
-          return this.handleResponse(retryResponse);
-        } else {
-          TokenManager.clearTokens();
-          window.location.href = '/login';
-          throw new Error('Session expired');
+        const refreshToken = TokenManager.getRefreshToken();
+        if (refreshToken) {
+          const refreshed = await this.refreshToken();
+          if (refreshed) {
+            const newToken = TokenManager.getAccessToken();
+            headers['Authorization'] = `Bearer ${newToken}`;
+            const retryResponse = await fetch(url, {
+              ...options,
+              headers,
+            });
+            return this.handleResponse(retryResponse);
+          }
         }
+        
+        // Если рефреш не удался - очищаем токены
+        TokenManager.clearTokens();
+        window.location.href = '/login';
+        throw new Error('Session expired');
       }
 
       return this.handleResponse(response);
@@ -79,8 +84,16 @@ class ApiService {
 
       if (response.ok) {
         const data = await response.json();
-        TokenManager.setTokens(data.accessToken, data.refreshToken);
-        return true;
+        // При обновлении токена сохраняем только токены, данные пользователя не меняются
+        if (data.accessToken && data.refreshToken) {
+          const userData = TokenManager.getUser();
+          TokenManager.setTokens(
+            data.accessToken,
+            data.refreshToken,
+            userData
+          );
+          return true;
+        }
       }
       return false;
     } catch (error) {

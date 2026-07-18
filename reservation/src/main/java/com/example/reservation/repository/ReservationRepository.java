@@ -9,8 +9,13 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
-    @Query("SELECT SUM(r.seats) FROM Reservation r WHERE r.event.id = :eventId AND r.isCanceled = false")
-    long countSeatsByEventId(UUID eventId);
+    @Query("""
+        SELECT COALESCE(SUM(r.seats), 0)
+        FROM Reservation r
+        WHERE r.event.id = :eventId
+        AND r.isCanceled = false
+        """)
+    long countSeatsByEventId(@Param("eventId") UUID eventId);
 
     @Query("SELECT r FROM Reservation r JOIN FETCH r.event WHERE r.userId = :userId ORDER BY r.id DESC")
     List<Reservation> findAllByUserIdWithEvent(@Param("userId") UUID userId);

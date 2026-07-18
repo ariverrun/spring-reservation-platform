@@ -5,11 +5,13 @@ import AuthService from '../services/auth.service';
 function Navbar({ onNavigate, currentPage }) {
   const [isAuthenticated, setIsAuthenticated] = useState(TokenManager.isAuthenticated());
   const [isAdmin, setIsAdmin] = useState(TokenManager.isAdmin());
+  const [userEmail, setUserEmail] = useState(TokenManager.getEmail());
 
   useEffect(() => {
     const handleAuthChange = (authState) => {
       setIsAuthenticated(authState);
       setIsAdmin(TokenManager.isAdmin());
+      setUserEmail(TokenManager.getEmail());
     };
 
     TokenManager.addListener(handleAuthChange);
@@ -21,6 +23,10 @@ function Navbar({ onNavigate, currentPage }) {
   const handleLogout = () => {
     AuthService.logout();
     onNavigate('home');
+    // Принудительно обновляем состояние
+    setIsAuthenticated(false);
+    setIsAdmin(false);
+    setUserEmail(null);
   };
 
   return (
@@ -49,10 +55,10 @@ function Navbar({ onNavigate, currentPage }) {
 
         {isAdmin && (
           <button
-            className={`nav-link admin ${currentPage === 'admin' ? 'active' : ''}`}
-            onClick={() => onNavigate('admin')}
+            className={`nav-link admin ${currentPage === 'my-events' ? 'active' : ''}`}
+            onClick={() => onNavigate('my-events')}
           >
-            ⚙️ Admin Panel
+            📋 My Events
           </button>
         )}
       </div>
@@ -62,6 +68,7 @@ function Navbar({ onNavigate, currentPage }) {
           <>
             <span className="user-badge">
               {isAdmin ? '👑 Admin' : '👤 User'}
+              {userEmail && <span className="user-email"> {userEmail}</span>}
             </span>
             <button className="btn-logout" onClick={handleLogout}>
               Logout

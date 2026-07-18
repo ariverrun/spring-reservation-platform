@@ -5,20 +5,37 @@ class AuthService {
   static async login(email, password) {
     try {
       const response = await ApiService.post('/auth/login', { email, password });
+      
       if (response.accessToken && response.refreshToken) {
-        // Получаем информацию о пользователе для определения роли
-        // Предполагаем, что в ответе приходит user с role
-        const userData = response.user || { role: 'USER' };
+        const userData = {
+          userId: response.userId,
+          email: response.email,
+          roles: response.roles || []
+        };
+        
         TokenManager.setTokens(
-          response.accessToken, 
+          response.accessToken,
           response.refreshToken,
           userData
         );
-        return { success: true, data: response };
+        
+        return { 
+          success: true, 
+          data: response,
+          isAdmin: userData.roles.some(r => r === 'ROLE_ADMIN')
+        };
       }
-      return { success: false, error: 'Invalid response from server' };
+      
+      return { 
+        success: false, 
+        error: 'Invalid response from server' 
+      };
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error('Login error:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Login failed' 
+      };
     }
   }
 
@@ -32,13 +49,16 @@ class AuthService {
       });
       return { success: true, data: response };
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error('Registration error:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Registration failed' 
+      };
     }
   }
 
   static logout() {
     TokenManager.clearTokens();
-    window.location.href = '/';
   }
 
   static isAuthenticated() {
@@ -51,6 +71,10 @@ class AuthService {
 
   static getUser() {
     return TokenManager.getUser();
+  }
+
+  static getUserId() {
+    return TokenManager.getUserId();
   }
 }
 

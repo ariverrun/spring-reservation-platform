@@ -29,6 +29,7 @@ function Login({ onLoginSuccess }) {
     if (isLogin) {
       result = await AuthService.login(formData.email, formData.password);
     } else {
+      // Регистрация
       result = await AuthService.register(
         formData.email,
         formData.firstName,
@@ -36,6 +37,7 @@ function Login({ onLoginSuccess }) {
         formData.password
       );
       if (result.success) {
+        // После регистрации автоматически логиним
         result = await AuthService.login(formData.email, formData.password);
       }
     }
@@ -70,6 +72,7 @@ function Login({ onLoginSuccess }) {
               onChange={handleChange}
               required
               placeholder="Enter your email"
+              autoComplete="email"
             />
           </div>
 
@@ -111,6 +114,7 @@ function Login({ onLoginSuccess }) {
               required
               placeholder="Enter your password"
               minLength={6}
+              autoComplete={isLogin ? 'current-password' : 'new-password'}
             />
           </div>
 
@@ -125,6 +129,7 @@ function Login({ onLoginSuccess }) {
 
         <div className="auth-toggle">
           <button 
+            type="button"
             className="toggle-button"
             onClick={() => {
               setIsLogin(!isLogin);

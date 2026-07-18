@@ -3,9 +3,10 @@ import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
-import AdminPanel from './components/AdminPanel';
+import MyEvents from './components/MyEvents';
 import ProtectedRoute from './components/ProtectedRoute';
 import TokenManager from './utils/tokenManager';
+import './App.css';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -29,7 +30,7 @@ function App() {
     if (page === 'dashboard' && !isAuthenticated) {
       return;
     }
-    if (page === 'admin' && !TokenManager.isAdmin()) {
+    if (page === 'my-events' && !TokenManager.isAdmin()) {
       return;
     }
     setCurrentPage(page);
@@ -52,10 +53,10 @@ function App() {
             <Dashboard />
           </ProtectedRoute>
         );
-      case 'admin':
+      case 'my-events':
         return (
           <ProtectedRoute onNavigate={handleNavigate}>
-            <AdminPanel />
+            <MyEvents />
           </ProtectedRoute>
         );
       default:

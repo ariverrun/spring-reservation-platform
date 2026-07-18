@@ -7,7 +7,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -45,8 +47,14 @@ class AuthControllerTest {
     @Test
     void shouldLoginSuccessfully() throws Exception {
         LoginRequestDto request = new LoginRequestDto("test@example.com", "password123");
-        AuthResultDto expectedResult = new AuthResultDto("access-token", "refresh-token");
-
+        AuthResultDto expectedResult = new AuthResultDto(
+            "access-token",
+            "refresh-token",
+            UUID.fromString("11111111-1111-1111-1111-111111111111"),
+            "test@example.com",
+            List.of("ROLE_USER"),
+            Instant.parse("2026-01-01T00:00:00Z")
+        );
         when(authService.login(any(LoginRequestDto.class))).thenReturn(expectedResult);
 
         mockMvc.perform(post("/api/v1/auth/login")
@@ -61,8 +69,14 @@ class AuthControllerTest {
     @Test
     void shouldRefreshTokenSuccessfully() throws Exception {
         RefreshRequestDto request = new RefreshRequestDto("refresh-token");
-        AuthResultDto expectedResult = new AuthResultDto("new-access-token", "new-refresh-token");
-
+        AuthResultDto expectedResult = new AuthResultDto(
+            "new-access-token",
+            "new-refresh-token",
+            UUID.fromString("11111111-1111-1111-1111-111111111111"),
+            "test@example.com",
+            List.of("ROLE_USER"),
+            Instant.parse("2026-01-01T00:00:00Z")
+        );
         when(authService.refresh(any(RefreshRequestDto.class))).thenReturn(expectedResult);
 
         mockMvc.perform(post("/api/v1/auth/refresh")

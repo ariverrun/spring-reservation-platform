@@ -50,9 +50,17 @@ public class AuthServiceImpl implements AuthService {
 
         refreshTokenRepository.save(refreshTokenEntity);
 
+        var accessTokenResult = jwtService.generateAccessToken(user);
+
         return new AuthResultDto(
-            jwtService.generateAccessToken(user),
-            refreshToken
+            accessTokenResult.token(),
+            refreshToken,
+            user.getId(),
+            user.getEmail(),
+            user.getRoles().stream()
+                .map(r -> r.getName())
+                .toList(),
+            accessTokenResult.expiresAt()
         );
     }
 
@@ -71,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
         refreshToken.setRevoked(true);
         refreshTokenRepository.save(refreshToken);
 
-        String newAccessToken = jwtService.generateAccessToken(user);
+        var accessTokenResult = jwtService.generateAccessToken(user);
         String newRefreshToken = jwtService.generateRefreshToken(user);
 
         RefreshToken newRefreshTokenEntity = RefreshToken.builder()
@@ -82,6 +90,15 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         refreshTokenRepository.save(newRefreshTokenEntity);
 
-        return new AuthResultDto(newAccessToken, newRefreshToken);
+        return new AuthResultDto(
+            accessTokenResult.token(),
+            newRefreshToken,
+            user.getId(),
+            user.getEmail(),
+            user.getRoles().stream()
+                .map(r -> r.getName())
+                .toList(),
+            accessTokenResult.expiresAt()
+        );
     }
 }

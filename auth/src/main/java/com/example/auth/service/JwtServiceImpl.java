@@ -1,6 +1,7 @@
 package com.example.auth.service;
 
 import com.example.auth.config.JwtConfig;
+import com.example.auth.dto.AccessTokenGenerationResultDto;
 import com.example.auth.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -14,6 +15,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,7 +30,7 @@ public class JwtServiceImpl implements JwtService {
     private final JwtConfig jwtConfig;
 
     @Override
-    public String generateAccessToken(User user) {
+    public AccessTokenGenerationResultDto generateAccessToken(User user) {
         try {
             Map<String, Object> claims = new HashMap<>();
             claims.put("email", user.getEmail());
@@ -36,13 +38,18 @@ public class JwtServiceImpl implements JwtService {
                     .map(role -> role.getName())
                     .collect(Collectors.toList()));
 
-            return Jwts.builder()
+            Instant expiresAt = Instant.now()
+                .plusMillis(jwtConfig.getAccessTokenExpiration());
+
+            var token = Jwts.builder()
                     .setClaims(claims)
                     .setSubject(user.getId().toString())
                     .setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getAccessTokenExpiration()))
+                    .setExpiration(Date.from(expiresAt))
                     .signWith(getPrivateKey())
                     .compact();
+
+            return new AccessTokenGenerationResultDto(token, expiresAt);
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate access token", e);
         }
