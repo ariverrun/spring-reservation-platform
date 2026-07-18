@@ -5,6 +5,7 @@ const TOKEN_EXPIRY_KEY = 'token_expiry';
 
 class TokenManager {
   static listeners = [];
+  static refreshTimer = null;
 
   static setTokens(accessToken, refreshToken, userData = null) {
     localStorage.setItem(TOKEN_KEY, accessToken);
@@ -17,7 +18,9 @@ class TokenManager {
     try {
       const payload = JSON.parse(atob(accessToken.split('.')[1]));
       if (payload.exp) {
-        localStorage.setItem(TOKEN_EXPIRY_KEY, String(payload.exp * 1000));
+        const expiryMs = payload.exp * 1000;
+        localStorage.setItem(TOKEN_EXPIRY_KEY, String(expiryMs));
+        this.scheduleRefresh(expiryMs);
       }
     } catch (e) {
       console.debug('Could not parse token expiry');
@@ -54,11 +57,76 @@ class TokenManager {
     return Date.now() > expiry;
   }
 
+  static getTimeUntilExpiry() {
+    const expiry = this.getTokenExpiry();
+    if (!expiry) return 0;
+    return expiry - Date.now();
+  }
+
+  static scheduleRefresh(expiryMs) {
+    this.clearRefreshTimer();
+
+    const now = Date.now();
+    const timeUntilExpiry = expiryMs - now;
+    
+    if (timeUntilExpiry < 60000) {
+      console.warn('Token already expired or expires in less than 1 minute');
+      this.notifyListeners();
+      return;
+    }
+
+    const refreshDelay = timeUntilExpiry - 60000;
+    
+    console.log(`Token refresh scheduled in ${Math.round(refreshDelay / 1000)} seconds`);
+    
+    this.refreshTimer = setTimeout(async () => {
+      console.log('⏰ Auto-refreshing token...');
+      try {
+        const refreshToken = this.getRefreshToken();
+        if (refreshToken) {
+          const response = await fetch('/api/v1/auth/refresh', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ refreshToken }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.accessToken && data.refreshToken) {
+              const userData = this.getUser();
+              this.setTokens(data.accessToken, data.refreshToken, userData);
+              console.log('✅ Token refreshed successfully');
+              this.notifyListeners();
+            }
+          } else {
+            console.error('❌ Token refresh failed');
+            this.clearTokens();
+            this.notifyListeners();
+          }
+        }
+      } catch (error) {
+        console.error('❌ Token refresh error:', error);
+        this.clearTokens();
+        this.notifyListeners();
+      }
+    }, refreshDelay);
+  }
+
+  static clearRefreshTimer() {
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+  }
+
   static clearTokens() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(TOKEN_EXPIRY_KEY);
+    this.clearRefreshTimer();
     this.notifyListeners();
   }
 

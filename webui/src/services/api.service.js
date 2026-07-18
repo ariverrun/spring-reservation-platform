@@ -21,7 +21,6 @@ class ApiService {
         headers,
       });
 
-      // Если 401 и есть refresh token - пытаемся обновить
       if (response.status === 401) {
         const refreshToken = TokenManager.getRefreshToken();
         if (refreshToken) {
@@ -37,7 +36,6 @@ class ApiService {
           }
         }
         
-        // Если рефреш не удался - очищаем токены
         TokenManager.clearTokens();
         window.location.href = '/login';
         throw new Error('Session expired');
@@ -84,7 +82,6 @@ class ApiService {
 
       if (response.ok) {
         const data = await response.json();
-        // При обновлении токена сохраняем только токены, данные пользователя не меняются
         if (data.accessToken && data.refreshToken) {
           const userData = TokenManager.getUser();
           TokenManager.setTokens(

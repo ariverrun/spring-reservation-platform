@@ -1336,3 +1336,25 @@ body {
   margin-left: 0.25rem;
   font-weight: 400;
 }
+
+/* Token timer */
+.token-timer {
+  padding: 0.25rem 0.75rem;
+  background: #f0f0f0;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  color: #555;
+  font-family: 'Courier New', monospace;
+  transition: all 0.3s;
+}
+
+.token-timer.warning {
+  background: #fff3cd;
+  color: #856404;
+  animation: pulse-warning 1s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}

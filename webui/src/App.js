@@ -15,7 +15,7 @@ function App() {
   useEffect(() => {
     const handleAuthChange = (authState) => {
       setIsAuthenticated(authState);
-      if (!authState) {
+      if (!authState && currentPage !== 'home' && currentPage !== 'login') {
         setCurrentPage('home');
       }
     };
@@ -24,7 +24,7 @@ function App() {
     return () => {
       TokenManager.removeListener(handleAuthChange);
     };
-  }, []);
+  }, [currentPage]);
 
   const handleNavigate = (page) => {
     if (page === 'dashboard' && !isAuthenticated) {
