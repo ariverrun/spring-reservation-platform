@@ -1,125 +1,139 @@
 import React, { useState, useEffect } from 'react';
 import ApiService from '../services/api.service';
-import AuthService from '../services/auth.service';
-import TokenManager from '../utils/tokenManager';
 
 function Dashboard() {
-  const [events, setEvents] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [updating, setUpdating] = useState(null);
 
-  const fetchData = async () => {
+  const fetchReservations = async () => {
     try {
       setLoading(true);
-      const [eventsData, reservationsData] = await Promise.all([
-        ApiService.get('/event'),
-        ApiService.get('/reserve').catch(() => []),
-      ]);
-      setEvents(eventsData || []);
-      setReservations(reservationsData || []);
+      const data = await ApiService.get('/reserve');
+      setReservations(data || []);
       setError('');
     } catch (err) {
-      setError('Failed to fetch data');
-      console.error('Error fetching data:', err);
+      setError('Failed to load reservations');
+      console.error('Error fetching reservations:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchReservations();
   }, []);
 
-  const handleLogout = () => {
-    AuthService.logout();
+  const handleCancelReservation = async (reservationId) => {
+    if (!window.confirm('Are you sure you want to cancel this reservation?')) {
+      return;
+    }
+
+    try {
+      setUpdating(reservationId);
+      await ApiService.put(`/reserve/${reservationId}`, {
+        seats: 0,
+        isCanceled: true,
+      });
+      await fetchReservations();
+      alert('Reservation canceled successfully');
+    } catch (err) {
+      alert(err.message || 'Failed to cancel reservation');
+    } finally {
+      setUpdating(null);
+    }
   };
 
-  const handleRefresh = () => {
-    fetchData();
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString('en-US', {
+      date: 'medium',
+      time: 'short',
+    });
   };
 
   return (
     <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>Dashboard</h1>
-        <div className="header-actions">
-          <span className="user-info">
-            ✅ Authenticated
-          </span>
-          <button onClick={handleLogout} className="logout-button">
-            Logout
+      <div className="dashboard-header">
+        <h1>My Reservations</h1>
+        <span className="reservation-count">
+          {reservations.length} reservation{reservations.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+
+      {error && (
+        <div className="error-banner">
+          {error}
+          <button onClick={fetchReservations} className="retry-button">
+            Retry
           </button>
         </div>
-      </header>
+      )}
 
-      <div className="dashboard-content">
-        <div className="token-info">
-          <h3>Token Status</h3>
-          <div className="token-display">
-            <span className="token-label">Access Token:</span>
-            <span className="token-value">
-              {TokenManager.getAccessToken()?.substring(0, 20)}...
-            </span>
-          </div>
+      {loading ? (
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Loading your reservations...</p>
         </div>
-
-        {error && (
-          <div className="error-banner">
-            {error}
-            <button onClick={handleRefresh} className="retry-button">
-              Retry
-            </button>
-          </div>
-        )}
-
-        <div className="data-section">
-          <h3>Events ({events.length})</h3>
-          {loading ? (
-            <div className="loading-spinner">Loading events...</div>
-          ) : (
-            <div className="data-grid">
-              {events.map((event) => (
-                <div key={event.id} className="data-card">
-                  <h4>{event.name}</h4>
-                  <p>{event.description}</p>
-                  <div className="card-details">
-                    <span>Price: ${event.ticketPrice}</span>
-                    <span>Seats: {event.totalSeats}</span>
-                  </div>
-                </div>
-              ))}
-              {events.length === 0 && (
-                <div className="empty-state">No events available</div>
-              )}
+      ) : (
+        <div className="reservations-list">
+          {reservations.length === 0 ? (
+            <div className="empty-state">
+              <p>You don't have any reservations yet</p>
+              <button 
+                className="btn-browse"
+                onClick={() => window.location.href = '/'}
+              >
+                Browse Events
+              </button>
             </div>
+          ) : (
+            reservations.map((reservation) => (
+              <div key={reservation.id} className="reservation-card">
+                <div className="reservation-card-header">
+                  <h3>{reservation.event?.name || 'Event'}</h3>
+                  <span className={`reservation-status ${reservation.isCanceled ? 'canceled' : 'active'}`}>
+                    {reservation.isCanceled ? '❌ Canceled' : '✅ Active'}
+                  </span>
+                </div>
+
+                <div className="reservation-details">
+                  <div className="detail-item">
+                    <span className="detail-label">Event ID:</span>
+                    <span className="detail-value">{reservation.eventId?.substring(0, 8)}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Seats:</span>
+                    <span className="detail-value">{reservation.seats}</span>
+                  </div>
+                  {reservation.event && (
+                    <>
+                      <div className="detail-item">
+                        <span className="detail-label">Date:</span>
+                        <span className="detail-value">{formatDate(reservation.event.startTime)}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Price:</span>
+                        <span className="detail-value">${reservation.event.ticketPrice}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {!reservation.isCanceled && (
+                  <button
+                    className="btn-cancel"
+                    onClick={() => handleCancelReservation(reservation.id)}
+                    disabled={updating === reservation.id}
+                  >
+                    {updating === reservation.id ? 'Processing...' : 'Cancel Reservation'}
+                  </button>
+                )}
+              </div>
+            ))
           )}
         </div>
-
-        <div className="data-section">
-          <h3>My Reservations ({reservations.length})</h3>
-          {loading ? (
-            <div className="loading-spinner">Loading reservations...</div>
-          ) : (
-            <div className="data-grid">
-              {reservations.map((reservation) => (
-                <div key={reservation.id} className="data-card">
-                  <h4>Reservation #{reservation.id?.substring(0, 8)}</h4>
-                  <div className="card-details">
-                    <span>Seats: {reservation.seats}</span>
-                    <span className={reservation.isCanceled ? 'canceled' : 'active'}>
-                      {reservation.isCanceled ? 'Canceled' : 'Active'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-              {reservations.length === 0 && (
-                <div className="empty-state">No reservations yet</div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }
