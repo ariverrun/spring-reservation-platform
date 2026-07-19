@@ -2,8 +2,8 @@ package com.example.auth.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.amqp.dsl.Amqp;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.dsl.Transformers;
 import org.springframework.messaging.MessageChannel;
 
 @Configuration
@@ -24,8 +23,8 @@ public class IntegrationConfig {
     }
 
     @Bean
-    public TopicExchange userEventsExchange() {
-        return new TopicExchange("user.events.exchange", true, false);
+    public FanoutExchange userEventsExchange() {
+        return new FanoutExchange("user.events.exchange", true, false);
     }
 
     @Bean
@@ -37,8 +36,7 @@ public class IntegrationConfig {
     public Binding userRegistrationBinding() {
         return BindingBuilder
             .bind(userRegistrationQueue())
-            .to(userEventsExchange())
-            .with("user.registered");
+            .to(userEventsExchange());
     }
 
     @Bean
@@ -56,12 +54,11 @@ public class IntegrationConfig {
     @Bean
     public IntegrationFlow userRegistrationFlow(
             MessageChannel userRegistrationChannel,
-            TopicExchange userEventsExchange,
+            FanoutExchange userEventsExchange,
             RabbitTemplate rabbitTemplate) {
         
         return IntegrationFlow
             .from(userRegistrationChannel)
-            // .transform(Transformers.toJson())
             .handle(Amqp.outboundAdapter(rabbitTemplate)
                 .exchangeName(userEventsExchange.getName())
                 .routingKey("user.registered"))
