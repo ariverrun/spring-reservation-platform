@@ -1,4 +1,4 @@
-package com.example.auth.event;
+package com.example.notification.event;
 
 import java.util.UUID;
 

@@ -21,6 +21,9 @@ logs-gateway:
 logs-webui:
 	docker compose --env-file $(ENV_FILE) logs -f webui
 
+logs-notification:
+	docker compose --env-file $(ENV_FILE) logs -f notification-app
+
 gen-ssh-keys:
 	@mkdir -p ssh-keys
 	@openssl genrsa -out ssh-keys/private.pem 2048

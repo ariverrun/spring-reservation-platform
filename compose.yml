@@ -105,6 +105,37 @@ services:
     networks:
       - services-network
 
+  maildev:
+    image: maildev/maildev
+    container_name: maildev
+    ports:
+      - "1025:1025"
+      - "1080:1080"
+    environment:
+      - MAILDEV_SMTP_PORT=1025
+      - MAILDEV_WEB_PORT=1080
+    networks:
+      - services-network
+
+  notification-app:
+    build:
+      context: ./notification
+      dockerfile: Dockerfile
+    container_name: notification-app
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - RABBITMQ_HOST=rabbitmq
+      - MAIL_HOST=maildev
+      - MAIL_PORT=1025
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      maildev:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - services-network
+
 networks:
   services-network:
     driver: bridge
