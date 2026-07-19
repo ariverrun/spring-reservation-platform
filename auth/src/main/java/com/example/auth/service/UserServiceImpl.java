@@ -22,42 +22,60 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    private static final String DEFAULT_ROLE = "ROLE_USER";
+
     private final UserRepository userRepository;
+
     private final RoleRepository roleRepository;
+
     private final PasswordEncoder passwordEncoder;
+
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
     public UserResponseDto register(RegisterRequestDto request) {
-        if (userRepository.existsByEmail(request.email())) {
+        validateEmailNotExists(request.email());
+        
+        Role userRole = getDefaultRole();
+        User user = buildUser(request, userRole);
+        User savedUser = userRepository.save(user);
+        
+        publishUserRegisteredEvent(savedUser);
+        log.info("User registered with id: {}", savedUser.getId());
+        
+        return new UserResponseDto(savedUser.getId());
+    }
+
+    private void validateEmailNotExists(String email) {
+        if (userRepository.existsByEmail(email)) {
             throw new EmailAlreadyUsedException("Email already registered");
         }
+    }
 
-        Role userRole = roleRepository.findByName("ROLE_USER")
+    private Role getDefaultRole() {
+        return roleRepository.findByName(DEFAULT_ROLE)
                 .orElseThrow(() -> new RuntimeException("ROLE_USER not found"));
+    }
 
-        User user = User.builder()
+    private User buildUser(RegisterRequestDto request, Role role) {
+        return User.builder()
                 .email(request.email())
                 .firstName(request.firstName())
                 .lastName(request.lastName())
                 .password(passwordEncoder.encode(request.password()))
-                .roles(Set.of(userRole))
+                .roles(Set.of(role))
                 .build();
+    }
 
-        User savedUser = userRepository.save(user);
-
+    private void publishUserRegisteredEvent(User user) {
         eventPublisher.publishEvent(
             new UserRegisteredEvent(
-                savedUser.getId(),
-                savedUser.getEmail(),
-                savedUser.getFirstName(),
-                savedUser.getLastName()
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName()
             )
         );
-
-        log.info("User registered with id: {}", savedUser.getId());
-
-        return new UserResponseDto(savedUser.getId());
     }
 }

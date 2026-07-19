@@ -6,5 +6,6 @@ import com.example.auth.dto.RefreshRequestDto;
 
 public interface AuthService {
     AuthResultDto login(LoginRequestDto request);
+
     AuthResultDto refresh(RefreshRequestDto request);
 }
