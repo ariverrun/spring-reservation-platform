@@ -6,37 +6,22 @@ on:
   pull_request:
     branches: [ main ]
 
-.build_spring_app: &build_spring_app
-  runs-on: ubuntu-latest
-  steps:
-    - name: 📥 Checkout
-      uses: actions/checkout@v4
-    
-    - name: 🐳 Setup Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
-    - name: 🔨 Build ${{ matrix.service }}
-      run: |
-        echo "📦 Building ${{ matrix.service }}..."
-        docker build -t ${{ matrix.service }}:${{ github.sha }} ./${{ matrix.service }}
-        echo "✅ ${{ matrix.service }} was successfully build"
-
 jobs:
-  build-all:
+  build:
     name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [reservation, auth, gateway, notification]
-    <<: *build_spring_app
-
-  build-webui:
-    name: Build webui
-    runs-on: ubuntu-latest
+        service: [reservation, auth, gateway, notification, webui]
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - name: Build webui
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      
+      - name: 🐳 Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: 🔨 Build ${{ matrix.service }}
         run: |
-          echo "📦 Building webui..."
-          docker build -t webui:${{ github.sha }} ./webui
-          echo "✅ webui was successfully build"
+          echo "📦 Building ${{ matrix.service }}..."
+          docker build -t ${{ matrix.service }}:${{ github.sha }} ./${{ matrix.service }}
+          echo "✅ ${{ matrix.service }} was successfully built"
