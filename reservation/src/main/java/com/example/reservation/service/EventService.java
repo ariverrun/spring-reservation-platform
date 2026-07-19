@@ -10,7 +10,10 @@ import java.util.UUID;
 
 public interface EventService {
     List<EventDto> getAllEvents();
+
     EventDto getEventById(UUID id);
+
     EventDto createEvent(CreateEventRequestDto request, UserInfo user);
-    EventDto updateEvent(UUID id, UpdateEventRequestDto request);    
+
+    EventDto updateEvent(UUID id, UpdateEventRequestDto request);
 }

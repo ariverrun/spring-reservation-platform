@@ -32,6 +32,7 @@ import java.util.UUID;
 public class EventController {
 
     private final EventService eventService;
+
     private final ReservationService reservationService;
 
     @GetMapping("/api/v1/event")

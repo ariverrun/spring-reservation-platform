@@ -11,8 +11,12 @@ import com.example.reservation.dto.UserInfo;
 
 public interface ReservationService {
     ReservationDto createReservation(CreateReservationRequestDto request, UserInfo user);
+
     List<ReservationWithEventDto> getUserReservations(UserInfo user);
+
     List<ReservationDto> getEventReservations(UUID eventId);
+
     ReservationWithEventDto getUserReservationById(UUID id, UserInfo user);
-    ReservationDto updateReservation(UUID id, UpdateReservationRequestDto request, UserInfo user);    
+
+    ReservationDto updateReservation(UUID id, UpdateReservationRequestDto request, UserInfo user);
 }

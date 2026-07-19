@@ -14,5 +14,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserInfo {
     private UUID id;
+
     private List<String> roles;
 }

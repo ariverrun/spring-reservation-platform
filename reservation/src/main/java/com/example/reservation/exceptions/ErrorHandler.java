@@ -72,7 +72,7 @@ public class ErrorHandler {
     public RestApiErrorDto handleFailedReservationManaging(Exception ex, HttpServletRequest request) {
         return new RestApiErrorDto(
             "RESERVATION_FAILED", 
-            "Failed to create or update reservation: "+ ex.getMessage()
+            "Failed to create or update reservation: " + ex.getMessage()
         );
     }
 

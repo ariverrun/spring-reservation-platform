@@ -29,40 +29,18 @@ import java.util.stream.Collectors;
 public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationRepository reservationRepository;
+
     private final EventRepository eventRepository;
 
     @Override
     @Transactional
     public ReservationDto createReservation(CreateReservationRequestDto request, UserInfo user) {
-        Event event = eventRepository.findByIdWithPessimisticLock(request.eventId())
-                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        Event event = getEventWithLock(request.eventId());
+        validateEventNotCanceled(event);
+        validateNoActiveReservation(user.getId(), event.getId());
+        validateAvailableSeats(event, request.seats());
 
-        if (Boolean.TRUE.equals(event.getIsCanceled())) {
-            throw new CanceledEventException("Can not create reservation for canceled event");
-        }
-
-        boolean hasActiveReservation = reservationRepository.existsByUserIdAndEventIdAndIsNotCanceled(
-            user.getId(), event.getId()
-        );
-    
-        if (hasActiveReservation) {
-            throw new RepeatedActiveReservationException("You already have an active reservation for this event");
-        }
-
-        long bookedSeats = reservationRepository.countSeatsByEventId(event.getId());
-        long availableSeats = event.getTotalSeats() - bookedSeats;
-
-        if (availableSeats < request.seats()) {
-            throw new NotEnoughFreeSeatsException("Not enough available seats. Available: " + availableSeats);
-        }
-
-        Reservation reservation = Reservation.builder()
-                .id(UUID.randomUUID())
-                .userId(user.getId())
-                .event(event)
-                .seats(request.seats())
-                .build();
-
+        Reservation reservation = createReservationEntity(event, user.getId(), request.seats());
         Reservation saved = reservationRepository.save(reservation);
 
         return mapToDto(saved);
@@ -72,103 +50,143 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional(readOnly = true)
     public List<ReservationWithEventDto> getUserReservations(UserInfo user) {
         List<Reservation> reservations = reservationRepository.findAllByUserIdWithEvent(user.getId());
-        
         return reservations.stream()
-            .map(this::mapToDtoWithEvent)
-            .collect(Collectors.toList())
-        ;
+                .map(this::mapToDtoWithEvent)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ReservationDto> getEventReservations(UUID eventId) {
-        Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> {
-                return new EntityNotFoundException("Event not found with id: " + eventId);
-            });
-        
+        Event event = getEventById(eventId);
         return event.getReservations().stream()
-            .map(this::mapToDto)
-            .collect(Collectors.toList());
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public ReservationWithEventDto getUserReservationById(UUID id, UserInfo user) {
-        Reservation reservation = reservationRepository.findById(id)
-            .orElseThrow(() -> {
-                return new EntityNotFoundException("Reservation not found with id: " + id);
-            });
-        
-        if (!reservation.getUserId().equals(user.getId())) {
-            throw new AccessViolationException("Access denied");
-        }
-        
-        return mapToDtoWithEvent(reservation);        
+        Reservation reservation = getReservationById(id);
+        validateUserOwnsReservation(reservation, user);
+        return mapToDtoWithEvent(reservation);
     }
 
     @Override
     @Transactional
     public ReservationDto updateReservation(UUID id, UpdateReservationRequestDto request, UserInfo user) {
-        Reservation reservation = reservationRepository.findById(id)
+        Reservation reservation = getReservationById(id);
+        validateUserOwnsReservation(reservation, user);
+        validateReservationNotCanceled(reservation);
+
+        Event event = getEventWithLock(reservation.getEvent().getId());
+        validateEventNotCanceled(event);
+        validateAvailableSeatsForUpdate(event, reservation, request.seats());
+
+        updateReservationEntity(reservation, request);
+        Reservation updated = reservationRepository.save(reservation);
+
+        return mapToDto(updated);
+    }
+
+    private Event getEventWithLock(UUID eventId) {
+        return eventRepository.findByIdWithPessimisticLock(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+    }
+
+    private Event getEventById(UUID eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
+    }
+
+    private Reservation getReservationById(UUID id) {
+        return reservationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Reservation not found with id: " + id));
-        
+    }
+
+    private void validateEventNotCanceled(Event event) {
+        if (Boolean.TRUE.equals(event.getIsCanceled())) {
+            throw new CanceledEventException("Cannot perform operation on canceled event");
+        }
+    }
+
+    private void validateNoActiveReservation(UUID userId, UUID eventId) {
+        boolean hasActiveReservation = reservationRepository.existsByUserIdAndEventIdAndIsNotCanceled(userId, eventId);
+        if (hasActiveReservation) {
+            throw new RepeatedActiveReservationException("You already have an active reservation for this event");
+        }
+    }
+
+    private void validateAvailableSeats(Event event, int requestedSeats) {
+        long bookedSeats = reservationRepository.countSeatsByEventId(event.getId());
+        long availableSeats = event.getTotalSeats() - bookedSeats;
+
+        if (availableSeats < requestedSeats) {
+            throw new NotEnoughFreeSeatsException("Not enough available seats. Available: " + availableSeats);
+        }
+    }
+
+    private void validateAvailableSeatsForUpdate(Event event, Reservation reservation, int requestedSeats) {
+        long bookedSeats = reservationRepository.countSeatsByEventId(event.getId());
+        long availableSeats = event.getTotalSeats() - bookedSeats + reservation.getSeats();
+
+        if (availableSeats < requestedSeats) {
+            throw new NotEnoughFreeSeatsException("Not enough available seats. Available: " + availableSeats);
+        }
+    }
+
+    private void validateUserOwnsReservation(Reservation reservation, UserInfo user) {
         if (!reservation.getUserId().equals(user.getId())) {
             throw new AccessViolationException("Access denied");
         }
-        
+    }
+
+    private void validateReservationNotCanceled(Reservation reservation) {
         if (Boolean.TRUE.equals(reservation.getIsCanceled())) {
             throw new CanceledReservationException("Cannot update canceled reservation");
         }
-        
-        Event event = eventRepository.findByIdWithPessimisticLock(reservation.getEvent().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
-        
-        if (Boolean.TRUE.equals(event.getIsCanceled())) {
-            throw new CanceledEventException("Cannot update reservation for canceled event");
-        }
-        
-        long bookedSeats = reservationRepository.countSeatsByEventId(event.getId());
-        long availableSeats = event.getTotalSeats() - bookedSeats + reservation.getSeats();
-        
-        if (availableSeats < request.seats()) {
-            throw new NotEnoughFreeSeatsException("Not enough available seats. Available: " + availableSeats);
-        }
+    }
 
+    private Reservation createReservationEntity(Event event, UUID userId, int seats) {
+        return Reservation.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .event(event)
+                .seats(seats)
+                .build();
+    }
+
+    private void updateReservationEntity(Reservation reservation, UpdateReservationRequestDto request) {
         reservation.setSeats(request.seats());
         reservation.setIsCanceled(request.isCanceled());
-        
-        Reservation updated = reservationRepository.save(reservation);
-        
-        return mapToDto(updated);
     }
 
     private ReservationDto mapToDto(Reservation reservation) {
         return new ReservationDto(
-            reservation.getId(),
-            reservation.getUserId(),
-            reservation.getEvent().getId(),
-            reservation.getSeats(),
-            reservation.getIsCanceled()
+                reservation.getId(),
+                reservation.getUserId(),
+                reservation.getEvent().getId(),
+                reservation.getSeats(),
+                reservation.getIsCanceled()
         );
     }
 
     private ReservationWithEventDto mapToDtoWithEvent(Reservation reservation) {
         Event event = reservation.getEvent();
         return new ReservationWithEventDto(
-            reservation.getId(),
-            reservation.getUserId(),
-            new ReservationEventDto(
-                event.getId(),
-                event.getName(),
-                event.getDescription(),
-                event.getStartTime(),
-                event.getDurationSeconds(),
-                event.getTicketPrice(),
-                event.getIsCanceled()
-            ),
-            reservation.getSeats(),
-            reservation.getIsCanceled()
+                reservation.getId(),
+                reservation.getUserId(),
+                new ReservationEventDto(
+                        event.getId(),
+                        event.getName(),
+                        event.getDescription(),
+                        event.getStartTime(),
+                        event.getDurationSeconds(),
+                        event.getTicketPrice(),
+                        event.getIsCanceled()
+                ),
+                reservation.getSeats(),
+                reservation.getIsCanceled()
         );
     }
 }
