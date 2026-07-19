@@ -134,7 +134,7 @@ public class ReservationServiceImpl implements ReservationService {
         if (availableSeats < request.seats()) {
             throw new NotEnoughFreeSeatsException("Not enough available seats. Available: " + availableSeats);
         }
-        
+
         reservation.setSeats(request.seats());
         reservation.setIsCanceled(request.isCanceled());
         
