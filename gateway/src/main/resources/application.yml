@@ -8,7 +8,22 @@ spring:
         connect-timeout: 1000
         response-timeout: 5s
 
+      filter:
+        local-response-cache:
+          enabled: true
+
       routes:
+        - id: event-cache
+          uri: http://${RESERVATION_HOST}:${RESERVATION_PORT}
+          predicates:
+            - Path=/api/v1/event
+            - Method=GET
+          filters:
+            - name: LocalResponseCache
+              args:
+                timeToLive: 1m
+                size: 10MB
+
         - id: reservation-service
           uri: http://${RESERVATION_HOST}:${RESERVATION_PORT}
           predicates:
