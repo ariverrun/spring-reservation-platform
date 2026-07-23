@@ -29,7 +29,6 @@ function Login({ onLoginSuccess }) {
     if (isLogin) {
       result = await AuthService.login(formData.email, formData.password);
     } else {
-      // Регистрация
       result = await AuthService.register(
         formData.email,
         formData.firstName,
@@ -37,7 +36,6 @@ function Login({ onLoginSuccess }) {
         formData.password
       );
       if (result.success) {
-        // После регистрации автоматически логиним
         result = await AuthService.login(formData.email, formData.password);
       }
     }

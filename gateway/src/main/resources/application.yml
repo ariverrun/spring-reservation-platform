@@ -8,12 +8,8 @@ spring:
         connect-timeout: 1000
         response-timeout: 5s
 
-      filter:
-        local-response-cache:
-          enabled: true
-
       routes:
-        - id: event-cache
+        - id: event-list
           uri: http://${RESERVATION_HOST}:${RESERVATION_PORT}
           predicates:
             - Path=/api/v1/event
@@ -23,6 +19,17 @@ spring:
               args:
                 timeToLive: 1m
                 size: 10MB
+
+        - id: event-my
+          uri: http://${RESERVATION_HOST}:${RESERVATION_PORT}
+          predicates:
+            - Path=/api/v1/event/my
+            - Method=GET
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: reservationService
+                fallbackUri: forward:/fallback/reservation
 
         - id: reservation-service
           uri: http://${RESERVATION_HOST}:${RESERVATION_PORT}

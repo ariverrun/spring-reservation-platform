@@ -7,7 +7,6 @@ function MyEvents() {
   const [error, setError] = useState('');
   const [canceling, setCanceling] = useState(null);
   
-  // Состояния для формы создания/редактирования
   const [showForm, setShowForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [formData, setFormData] = useState({
@@ -24,8 +23,7 @@ function MyEvents() {
   const fetchMyEvents = async () => {
     try {
       setLoading(true);
-      // Получаем все события (для админа показываем все)
-      const data = await ApiService.get('/event');
+      const data = await ApiService.get('/event/my');
       setEvents(data || []);
       setError('');
     } catch (err) {

@@ -64,6 +64,11 @@ public class EventController {
         return eventService.updateEvent(id, request);
     }
 
+    @GetMapping("/api/v1/event/my")
+    public List<EventDto> getUserEvents(@AuthenticationPrincipal UserInfo user) {
+        return eventService.getUserEvents(user);
+    }
+
     @GetMapping("/api/v1/event/{id}/reserve")
     public List<ReservationDto> getEventReserves(@PathVariable UUID id) {
         return reservationService.getEventReservations(id);

@@ -10,7 +10,7 @@ function AdminEventList({ onEdit, onRefresh }) {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const data = await ApiService.get('/event');
+      const data = await ApiService.get('/event/my');
       setEvents(data || []);
       setError('');
     } catch (err) {
@@ -83,7 +83,7 @@ function AdminEventList({ onEdit, onRefresh }) {
       </div>
     );
   }
-
+  
   return (
     <div className="admin-event-list">
       <div className="admin-list-header">

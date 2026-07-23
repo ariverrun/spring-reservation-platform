@@ -73,6 +73,14 @@ public class EventServiceImpl implements EventService {
         return mapToDto(updatedEvent);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<EventDto> getUserEvents(UserInfo user) {
+        return eventRepository.findByUserId(user.getId()).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());        
+    }
+
     private EventDto mapToDto(Event event) {
         return new EventDto(
             event.getId(),

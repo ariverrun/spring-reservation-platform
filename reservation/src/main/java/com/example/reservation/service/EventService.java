@@ -16,4 +16,6 @@ public interface EventService {
     EventDto createEvent(CreateEventRequestDto request, UserInfo user);
 
     EventDto updateEvent(UUID id, UpdateEventRequestDto request);
+
+    List<EventDto> getUserEvents(UserInfo user);
 }

@@ -26,7 +26,6 @@ function Navbar({ onNavigate, currentPage }) {
 
     TokenManager.addListener(handleAuthChange);
     
-    // Обновляем таймер каждую секунду
     const timerInterval = setInterval(() => {
       updateTimeUntilExpiry();
     }, 1000);
@@ -54,7 +53,6 @@ function Navbar({ onNavigate, currentPage }) {
     setTimeUntilExpiry(0);
   };
 
-  // Форматируем время до истечения
   const formatTimeUntilExpiry = (ms) => {
     if (ms <= 0) return 'Expired';
     const seconds = Math.floor(ms / 1000);
@@ -66,7 +64,7 @@ function Navbar({ onNavigate, currentPage }) {
     return `${seconds}s`;
   };
 
-  const isTokenNearExpiry = timeUntilExpiry < 120000; // меньше 2 минут
+  const isTokenNearExpiry = timeUntilExpiry < 120000;
 
   return (
     <nav className="navbar">
@@ -80,7 +78,7 @@ function Navbar({ onNavigate, currentPage }) {
           className={`nav-link ${currentPage === 'home' ? 'active' : ''}`}
           onClick={() => onNavigate('home')}
         >
-          Home
+          All events
         </button>
 
         {isAuthenticated && (

@@ -42,7 +42,6 @@ function Home() {
       });
       alert('Reservation created successfully!');
       setSeatsToReserve(1);
-      // Обновляем список событий, чтобы обновить доступные места
       await fetchEvents();
     } catch (err) {
       alert(err.message || 'Failed to create reservation');
