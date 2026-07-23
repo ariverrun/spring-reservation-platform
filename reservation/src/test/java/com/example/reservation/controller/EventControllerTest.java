@@ -211,6 +211,48 @@ class EventControllerTest {
         verify(reservationService).getEventReservations(eventId);
     }
 
+    @Test
+    @WithMockUser
+    void shouldGetUserEvents() throws Exception {
+        UserInfo user = UserInfo.builder()
+            .id(USER_1_ID)
+            .roles(List.of("ADMIN"))
+            .build();
+        
+        var expectedResult = getDbEventDtos();
+        
+        when(eventService.getUserEvents(user)).thenReturn(expectedResult);
+        
+        setSecurityContext(user);
+        
+        mockMvc.perform(get("/api/v1/event/my"))
+            .andExpect(status().isOk())
+            .andExpect(content().json(objectMapper.writeValueAsString(expectedResult)));
+        
+        verify(eventService).getUserEvents(user);
+    }
+
+    @Test
+    @WithMockUser
+    void shouldReturnEmptyListWhenNoUserEvents() throws Exception {
+        UserInfo user = UserInfo.builder()
+            .id(USER_RES_1_ID)
+            .roles(List.of("USER"))
+            .build();
+        
+        var expectedResult = List.<EventDto>of();
+        
+        when(eventService.getUserEvents(user)).thenReturn(expectedResult);
+        
+        setSecurityContext(user);
+        
+        mockMvc.perform(get("/api/v1/event/my"))
+            .andExpect(status().isOk())
+            .andExpect(content().json(objectMapper.writeValueAsString(expectedResult)));
+        
+        verify(eventService).getUserEvents(user);
+    }
+
     private static List<EventDto> getDbEventDtos() {
         return List.of(
             new EventDto(

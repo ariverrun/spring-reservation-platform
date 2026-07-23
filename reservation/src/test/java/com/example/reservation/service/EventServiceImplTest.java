@@ -133,6 +133,22 @@ class EventServiceImplTest {
             .hasMessage("Event not found with id: " + nonExistentId);
     }
 
+    @ParameterizedTest
+    @MethodSource("getUserEvents")
+    void shouldGetUserEvents(UserInfo user, List<EventDto> expectedEvents) {
+        List<EventDto> actualEvents = eventService.getUserEvents(user);
+        assertThat(actualEvents)
+            .usingRecursiveComparison()
+            .isEqualTo(expectedEvents);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getUserEventsEmpty")
+    void shouldReturnEmptyListWhenUserHasNoEvents(UserInfo user) {
+        List<EventDto> actualEvents = eventService.getUserEvents(user);
+        assertThat(actualEvents).isEmpty();
+    }
+
     private static Stream<Arguments> getDbEvents() {
         return Stream.of(
             Arguments.of(
@@ -326,4 +342,63 @@ class EventServiceImplTest {
             Arguments.of(EXISTING_EVENT_ID_2, request2, expected2)
         );
     }
+
+    private static Stream<Arguments> getUserEvents() {
+        UserInfo user = UserInfo.builder()
+            .id(EXISTING_USER_ID)
+            .roles(List.of("USER"))
+            .build();
+
+        return Stream.of(
+            Arguments.of(
+                user,
+                List.of(
+                    new EventDto(
+                        EXISTING_EVENT_ID_1,
+                        EXISTING_USER_ID,
+                        "Spring Boot Conference 2024",
+                        "Annual Spring Boot developer conference",
+                        Instant.parse("2024-12-15T10:00:00Z"),
+                        28800L,
+                        149.99,
+                        200,
+                        false
+                    ),
+                    new EventDto(
+                        EXISTING_EVENT_ID_2,
+                        EXISTING_USER_ID,
+                        "Java Microservices Workshop",
+                        "Hands-on workshop with Spring Cloud",
+                        Instant.parse("2024-12-20T09:00:00Z"),
+                        21600L,
+                        89.50,
+                        50,
+                        false
+                    ),
+                    new EventDto(
+                        EXISTING_EVENT_ID_3,
+                        EXISTING_USER_ID,
+                        "Tech Meetup: Modern Java",
+                        "Monthly meetup about Java features",
+                        Instant.parse("2024-12-25T18:30:00Z"),
+                        7200L,
+                        0.00,
+                        100,
+                        false
+                    )
+                )
+            )
+        );
+    }
+
+    private static Stream<Arguments> getUserEventsEmpty() {
+        UserInfo user = UserInfo.builder()
+            .id(UUID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff"))
+            .roles(List.of("USER"))
+            .build();
+
+        return Stream.of(
+            Arguments.of(user)
+        );
+    }    
 }
