@@ -149,7 +149,6 @@ public class ReservationServiceImpl implements ReservationService {
 
     private Reservation createReservationEntity(Event event, UUID userId, int seats) {
         return Reservation.builder()
-                .id(UUID.randomUUID())
                 .userId(userId)
                 .event(event)
                 .seats(seats)

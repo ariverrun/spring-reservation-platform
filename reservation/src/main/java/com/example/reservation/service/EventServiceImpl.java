@@ -41,7 +41,6 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDto createEvent(CreateEventRequestDto request, UserInfo user) {
         Event event = Event.builder()
-                .id(UUID.randomUUID())
                 .userId(user.getId())
                 .name(request.name())
                 .description(request.description())
