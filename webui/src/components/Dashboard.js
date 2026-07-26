@@ -25,7 +25,7 @@ function Dashboard() {
     fetchReservations();
   }, []);
 
-  const handleCancelReservation = async (reservationId) => {
+  const handleCancelReservation = async (reservationId, seats) => {
     if (!window.confirm('Are you sure you want to cancel this reservation?')) {
       return;
     }
@@ -33,7 +33,7 @@ function Dashboard() {
     try {
       setUpdating(reservationId);
       await ApiService.put(`/reserve/${reservationId}`, {
-        seats: 0,
+        seats: seats,
         isCanceled: true,
       });
       await fetchReservations();
@@ -123,7 +123,7 @@ function Dashboard() {
                 {!reservation.isCanceled && (
                   <button
                     className="btn-cancel"
-                    onClick={() => handleCancelReservation(reservation.id)}
+                    onClick={() => handleCancelReservation(reservation.id, reservation.seats)}
                     disabled={updating === reservation.id}
                   >
                     {updating === reservation.id ? 'Processing...' : 'Cancel Reservation'}
