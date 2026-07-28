@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: OpenAPI definition
   version: v0
@@ -27,47 +27,39 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateReservationRequestDto'
+              $ref: "#/components/schemas/UpdateReservationRequestDto"
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/RestApiErrorDto'
-                - $ref: '#/components/schemas/RestApiValidationErrorDto'
         "403":
           description: Forbidden
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ReservationDto'
+                $ref: "#/components/schemas/ReservationDto"
   /api/v1/event/{id}:
     get:
       tags:
@@ -81,44 +73,36 @@ paths:
           type: string
           format: uuid
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/RestApiErrorDto'
-                - $ref: '#/components/schemas/RestApiValidationErrorDto'
         "403":
           description: Forbidden
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/EventDto'
+                $ref: "#/components/schemas/EventDto"
     put:
       tags:
       - Events
@@ -134,85 +118,69 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateEventRequestDto'
+              $ref: "#/components/schemas/UpdateEventRequestDto"
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/RestApiErrorDto'
-                - $ref: '#/components/schemas/RestApiValidationErrorDto'
         "403":
           description: Forbidden
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/EventDto'
+                $ref: "#/components/schemas/EventDto"
   /api/v1/reserve:
     get:
       tags:
       - Reservations
       operationId: getUserReserves
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/RestApiErrorDto'
-                - $ref: '#/components/schemas/RestApiValidationErrorDto'
         "403":
           description: Forbidden
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
         "200":
           description: OK
           content:
@@ -220,7 +188,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ReservationWithEventDto'
+                  $ref: "#/components/schemas/ReservationWithEventDto"
     post:
       tags:
       - Reservations
@@ -229,85 +197,69 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateReservationRequestDto'
+              $ref: "#/components/schemas/CreateReservationRequestDto"
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/RestApiErrorDto'
-                - $ref: '#/components/schemas/RestApiValidationErrorDto'
         "403":
           description: Forbidden
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
         "201":
           description: Created
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ReservationCreatedDto'
+                $ref: "#/components/schemas/ReservationCreatedDto"
   /api/v1/event:
     get:
       tags:
       - Events
       operationId: getAllEvents
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/RestApiErrorDto'
-                - $ref: '#/components/schemas/RestApiValidationErrorDto'
         "403":
           description: Forbidden
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
         "200":
           description: OK
           content:
@@ -315,7 +267,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EventDto'
+                  $ref: "#/components/schemas/EventDto"
     post:
       tags:
       - Events
@@ -324,47 +276,39 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateEventRequestDto'
+              $ref: "#/components/schemas/CreateEventRequestDto"
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/RestApiErrorDto'
-                - $ref: '#/components/schemas/RestApiValidationErrorDto'
         "403":
           description: Forbidden
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
         "201":
           description: Created
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/EventCreatedDto'
+                $ref: "#/components/schemas/EventCreatedDto"
   /api/v1/reserve/{reservationId}:
     get:
       tags:
@@ -378,44 +322,36 @@ paths:
           type: string
           format: uuid
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/RestApiErrorDto'
-                - $ref: '#/components/schemas/RestApiValidationErrorDto'
         "403":
           description: Forbidden
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ReservationWithEventDto'
+                $ref: "#/components/schemas/ReservationWithEventDto"
   /api/v1/event/{id}/reserve:
     get:
       tags:
@@ -429,38 +365,30 @@ paths:
           type: string
           format: uuid
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/RestApiErrorDto'
-                - $ref: '#/components/schemas/RestApiValidationErrorDto'
         "403":
           description: Forbidden
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RestApiErrorDto'
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
         "200":
           description: OK
           content:
@@ -468,18 +396,47 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ReservationDto'
+                  $ref: "#/components/schemas/ReservationDto"
+  /api/v1/event/my:
+    get:
+      tags:
+      - Events
+      operationId: getUserEvents
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestApiErrorDto"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventDto"
 components:
   schemas:
-    RestApiValidationErrorDto:
-      type: object
-      properties:
-        error:
-          type: string
-        violations:
-          type: object
-          additionalProperties:
-            type: string
     RestApiErrorDto:
       type: object
       properties:
@@ -488,17 +445,17 @@ components:
         message:
           type: string
     UpdateReservationRequestDto:
-      required:
-      - isCanceled
-      - seats
       type: object
       properties:
         seats:
-          minimum: 1
           type: integer
           format: int32
+          minimum: 1
         isCanceled:
           type: boolean
+      required:
+      - isCanceled
+      - seats
     ReservationDto:
       type: object
       properties:
@@ -517,40 +474,39 @@ components:
         isCanceled:
           type: boolean
     UpdateEventRequestDto:
-      required:
-      - durationSeconds
-      - isCanceled
-      - name
-      - startTime
-      - ticketPrice
-      - totalSeats
       type: object
       properties:
         name:
+          type: string
           maxLength: 255
           minLength: 0
-          type: string
         description:
+          type: string
           maxLength: 2000
           minLength: 0
-          type: string
         startTime:
           type: string
           format: date-time
         durationSeconds:
-          minimum: 1
           type: integer
           format: int64
+          minimum: 1
         ticketPrice:
-          minimum: 0
           type: number
           format: double
+          minimum: 0
         totalSeats:
-          minimum: 1
           type: integer
           format: int32
+          minimum: 1
         isCanceled:
           type: boolean
+      required:
+      - durationSeconds
+      - isCanceled
+      - startTime
+      - ticketPrice
+      - totalSeats
     EventDto:
       type: object
       properties:
@@ -579,18 +535,18 @@ components:
         isCanceled:
           type: boolean
     CreateReservationRequestDto:
-      required:
-      - eventId
-      - seats
       type: object
       properties:
         eventId:
           type: string
           format: uuid
         seats:
-          minimum: 1
           type: integer
           format: int32
+          minimum: 1
+      required:
+      - eventId
+      - seats
     ReservationCreatedDto:
       type: object
       properties:
@@ -598,37 +554,36 @@ components:
           type: string
           format: uuid
     CreateEventRequestDto:
-      required:
-      - durationSeconds
-      - name
-      - startTime
-      - ticketPrice
-      - totalSeats
       type: object
       properties:
         name:
+          type: string
           maxLength: 255
           minLength: 0
-          type: string
         description:
+          type: string
           maxLength: 2000
           minLength: 0
-          type: string
         startTime:
           type: string
           format: date-time
         durationSeconds:
-          minimum: 1
           type: integer
           format: int64
+          minimum: 1
         ticketPrice:
-          minimum: 0
           type: number
           format: double
+          minimum: 0
         totalSeats:
-          minimum: 1
           type: integer
           format: int32
+          minimum: 1
+      required:
+      - durationSeconds
+      - startTime
+      - ticketPrice
+      - totalSeats
     EventCreatedDto:
       type: object
       properties:
@@ -666,7 +621,7 @@ components:
           type: string
           format: uuid
         event:
-          $ref: '#/components/schemas/ReservationEventDto'
+          $ref: "#/components/schemas/ReservationEventDto"
         seats:
           type: integer
           format: int32

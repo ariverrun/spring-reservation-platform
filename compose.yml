@@ -6,6 +6,8 @@ services:
     container_name: reservation-app
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "${RESERVATION_APP_PORT}:8080"
     volumes:
       - ./ssh-keys:/app/ssh-keys:ro 
     healthcheck:
@@ -26,6 +28,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - RABBITMQ_HOST=rabbitmq
+    ports:
+      - "${AUTH_APP_PORT}:8080"      
     depends_on:
       rabbitmq:
         condition: service_healthy      
