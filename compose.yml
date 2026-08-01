@@ -1,0 +1,144 @@
+services:
+  reservation-app:
+    build:
+      context: ./reservation
+      dockerfile: Dockerfile
+    container_name: reservation-app
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "${RESERVATION_APP_PORT}:8080"
+    volumes:
+      - ./ssh-keys:/app/ssh-keys:ro 
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - services-network
+
+  auth-app:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    container_name: auth-app
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - RABBITMQ_HOST=rabbitmq
+    ports:
+      - "${AUTH_APP_PORT}:8080"      
+    depends_on:
+      rabbitmq:
+        condition: service_healthy      
+    volumes:
+      - ./ssh-keys:/app/ssh-keys:ro    
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - services-network
+
+  gateway-app:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: gateway-app
+    ports:
+      - "${GATEWAY_APP_PORT}:8010"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - RESERVATION_HOST=${RESERVATION_HOST}
+      - RESERVATION_PORT=${RESERVATION_PORT}
+      - AUTH_HOST=${AUTH_HOST}
+      - AUTH_PORT=${AUTH_PORT}
+    depends_on:
+      reservation-app:
+        condition: service_healthy
+      auth-app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8010/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - services-network
+
+  webui:
+    build:
+      context: ./webui
+      dockerfile: Dockerfile
+    container_name: webui
+    ports:
+      - "${WEBUI_PORT:-3000}:80"
+    depends_on:
+      gateway-app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - services-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "${RABBITMQ_UI_PORT}:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - services-network
+
+  maildev:
+    image: maildev/maildev
+    container_name: maildev
+    ports:
+      - "${MAILDEV_UI_PORT}:1080"
+    environment:
+      - MAILDEV_SMTP_PORT=1025
+      - MAILDEV_WEB_PORT=1080
+    networks:
+      - services-network
+
+  notification-app:
+    build:
+      context: ./notification
+      dockerfile: Dockerfile
+    container_name: notification-app
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - RABBITMQ_HOST=rabbitmq
+      - MAIL_HOST=maildev
+      - MAIL_PORT=1025
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      maildev:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - services-network
+
+networks:
+  services-network:
+    driver: bridge

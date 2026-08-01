@@ -1,0 +1,210 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /api/v1/user:
+    post:
+      tags:
+      - user-controller
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequestDto'
+        required: true
+      responses:
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiErrorDto'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiErrorDto'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/RestApiErrorDto'
+                - $ref: '#/components/schemas/RestApiValidationErrorDto'
+        "403":
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiErrorDto'
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+  /api/v1/auth/refresh:
+    post:
+      tags:
+      - auth-controller
+      operationId: refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequestDto'
+        required: true
+      responses:
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiErrorDto'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiErrorDto'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/RestApiErrorDto'
+                - $ref: '#/components/schemas/RestApiValidationErrorDto'
+        "403":
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiErrorDto'
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthResultDto'
+  /api/v1/auth/login:
+    post:
+      tags:
+      - auth-controller
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDto'
+        required: true
+      responses:
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiErrorDto'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiErrorDto'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/RestApiErrorDto'
+                - $ref: '#/components/schemas/RestApiValidationErrorDto'
+        "403":
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiErrorDto'
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthResultDto'
+components:
+  schemas:
+    RestApiErrorDto:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+    RestApiValidationErrorDto:
+      type: object
+      properties:
+        error:
+          type: string
+        violations:
+          type: object
+          additionalProperties:
+            type: string
+    RegisterRequestDto:
+      required:
+      - email
+      - firstName
+      - lastName
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+        firstName:
+          maxLength: 100
+          minLength: 2
+          type: string
+        lastName:
+          maxLength: 100
+          minLength: 2
+          type: string
+        password:
+          maxLength: 2147483647
+          minLength: 6
+          type: string
+    UserResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+    RefreshRequestDto:
+      required:
+      - refreshToken
+      type: object
+      properties:
+        refreshToken:
+          type: string
+    AuthResultDto:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+    LoginRequestDto:
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string

@@ -1,0 +1,63 @@
+package com.example.reservation.entity;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Table(name = "events")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Event {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "BINARY(16)")
+    private UUID id;
+
+    @Column(name = "user_id", columnDefinition = "BINARY(16)", nullable = false)
+    private UUID userId;
+
+    @Column(nullable = false, length = 255)
+    private String name;
+
+    @Column(length = 2000)
+    private String description;
+
+    @Column(name = "start_time", nullable = false)
+    private Instant startTime;
+
+    @Column(name = "duration_seconds", nullable = false)
+    private Long durationSeconds;
+
+    @Column(name = "ticket_price", nullable = false)
+    private Double ticketPrice;
+
+    @Column(name = "total_seats", nullable = false)
+    private Integer totalSeats;
+
+    @Column(name = "is_canceled", nullable = false)
+    @Builder.Default
+    private Boolean isCanceled = false;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Reservation> reservations = new ArrayList<>();    
+}

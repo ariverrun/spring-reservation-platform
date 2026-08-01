@@ -1,0 +1,32 @@
+-- V4__insert_sample_reservations.sql
+INSERT INTO reservations (id, user_id, event_id, seats) VALUES
+(
+    X'41000000000000000000000000000001',
+    X'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    X'1234567890abcdef1234567890abcdef',
+    2
+),
+(
+    X'41000000000000000000000000000002',
+    X'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    X'1234567890abcdef1234567890abcdef',
+    1
+),
+(
+    X'41000000000000000000000000000003',
+    X'cccccccccccccccccccccccccccccccc',
+    X'2234567890abcdef1234567890abcdef',
+    3
+),
+(
+    X'41000000000000000000000000000004',
+    X'dddddddddddddddddddddddddddddddd',
+    X'2234567890abcdef1234567890abcdef',
+    1
+),
+(
+    X'41000000000000000000000000000005',
+    X'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    X'3234567890abcdef1234567890abcdef',
+    5
+);
